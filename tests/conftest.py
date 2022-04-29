@@ -13,6 +13,7 @@ from pypetwalk.const import (
     API_STATE_MAPPING_SYSTEM_OFF,
     API_STATE_MAPPING_SYSTEM_ON,
     API_STATE_SYSTEM,
+    WS_COMMAND_RFID_START_LEARN,
 )
 
 
@@ -94,6 +95,18 @@ class FakeAPI:
 def fake_api():
     """Fake API fixture."""
     return FakeAPI()
+
+
+@pytest.fixture
+def ws_request_data():
+    """Data object fixture for WS Request."""
+    return {"requests": [{"function": WS_COMMAND_RFID_START_LEARN, "params": [1]}]}
+
+
+@pytest.fixture
+def ws_request_json():
+    """JSON String fixture for WS Request."""
+    return f'{{"requests": [{{"function": "{WS_COMMAND_RFID_START_LEARN}", "params": [1]}}]}}'
 
 
 @pytest.fixture

@@ -5,7 +5,8 @@ import json
 import logging
 from types import TracebackType
 
-import aiohttp
+from aiohttp import ClientSession, WSMsgType
+from aiohttp.client_exceptions import ClientConnectorError
 
 from pypetwalk.const import (
     WS_COMMAND_DEVICE_INFO,
@@ -30,6 +31,7 @@ from pypetwalk.const import (
     WS_COMMAND_ZIGBEE_UPDATE,
     ZIGBEE_DEFAULT_JOIN_TYPE,
 )
+from pypetwalk.exceptions import PyPetWALKClientConnectionError
 
 from .request import Request
 
@@ -43,7 +45,7 @@ class WS:
         """Initialize Websocket Class."""
         self.server_host = host
         self.server_port = port
-        self.session = aiohttp.ClientSession()
+        self.session = ClientSession()
 
     async def __aenter__(self) -> "WS":
         """Start Websocket class from context manager."""
@@ -171,15 +173,28 @@ class WS:
         request = Request().build_request(command, params)
 
         url = f"ws://{self.server_host}:{self.server_port}"
-        async with self.session.ws_connect(url) as websocket_connection:
-            await websocket_connection.send_str(request.get_json())
+        try:
+            async with self.__get_session().ws_connect(url) as websocket_connection:
+                await websocket_connection.send_str(request.get_json())
 
-            async for msg in websocket_connection:
-                if msg.type == aiohttp.WSMsgType.ERROR:
-                    _LOGGER.error("Unable to connect to WS %s", url)
-                    result = {}
-                else:
-                    if msg.type == aiohttp.WSMsgType.TEXT:
-                        result = json.loads(msg.data)
-                return result
+                async for msg in websocket_connection:
+                    if msg.type == WSMsgType.ERROR:
+                        _LOGGER.error("Unable to connect to WS %s", url)
+                        result = {}
+                    else:
+                        if msg.type == WSMsgType.TEXT:
+                            result = json.loads(msg.data)
+                    return result
+        except ClientConnectorError as ex:
+            _LOGGER.debug("%s", ex)
+            await self.close()
+            raise PyPetWALKClientConnectionError(ex) from ex
+
         return {}
+
+    def __get_session(self) -> ClientSession:
+        """Return current session, recreating if it was closed."""
+        if self.session.closed:
+            self.session = ClientSession()
+
+        return self.session

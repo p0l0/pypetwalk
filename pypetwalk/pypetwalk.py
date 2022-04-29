@@ -18,6 +18,7 @@ from .const import (
     API_STATE_TIME,
     WS_PORT,
 )
+from .exceptions import PyPetWALKInvalidResponse, PyPetWALKInvalidResponseValue
 from .ws import WS
 
 logging.basicConfig(level=logging.DEBUG)
@@ -50,11 +51,17 @@ class PyPetWALK:
 
     async def set_brightness_sensor(self, state: bool) -> bool:
         """Set new value for brightness sensor."""
-        return await self.__api_set_state(API_STATE_BRIGHTNESS_SENSOR, state)
+        try:
+            return await self.__api_set_state(API_STATE_BRIGHTNESS_SENSOR, state)
+        finally:
+            await self.api_client.close()
 
     async def get_brightness_sensor(self) -> bool:
         """Get current value for brightness sensor."""
-        return await self.__api_get_state(API_STATE_BRIGHTNESS_SENSOR)
+        try:
+            return await self.__api_get_state(API_STATE_BRIGHTNESS_SENSOR)
+        finally:
+            await self.api_client.close()
 
     async def set_motion_in(self, state: bool) -> bool:
         """Set new value for 'motion in' mode."""
@@ -109,6 +116,11 @@ class PyPetWALK:
         method = f"get_{API_METHOD_MAPPING[param].lower()}s"
         _LOGGER.debug("Calling API method %s for %s", method, param)
         resp = await getattr(self.api_client, method)()
+        if param not in resp:
+            error = f"Invalid Response {param} not found in {{resp}}"
+            _LOGGER.debug(error)
+            raise PyPetWALKInvalidResponse(error)
+
         if resp[param] is True or resp[param] is False:
             result = resp[param]
         elif resp[param] in API_STATE_MAPPING:
@@ -116,7 +128,7 @@ class PyPetWALK:
         else:
             error = f"Unknown response value {resp[param]} for {param}"
             _LOGGER.error(error)
-            raise Exception(error)
+            raise PyPetWALKInvalidResponseValue(error)
 
         return result  # type: ignore[no-any-return]
 
@@ -126,8 +138,8 @@ class PyPetWALK:
         _LOGGER.debug(
             "Calling API method %s for %s with value %r", method, param, value
         )
-        resp = await getattr(self.api_client, method)(param, value)
-        return resp["error"] is not True
+        await getattr(self.api_client, method)(param, value)
+        return True
 
     async def get_device_info(self) -> dict:
         """Get current device information."""

@@ -4,7 +4,8 @@ from __future__ import annotations
 import logging
 from types import TracebackType
 
-import aiohttp
+from aiohttp import ClientSession
+from aiohttp.client_exceptions import ClientConnectorError
 
 from pypetwalk.const import (
     API_HTTP_PROTOCOL,
@@ -15,6 +16,10 @@ from pypetwalk.const import (
     API_STATE_MAPPING_SYSTEM_OFF,
     API_STATE_MAPPING_SYSTEM_ON,
     API_STATE_SYSTEM,
+)
+from pypetwalk.exceptions import (
+    PyPetWALKClientConnectionError,
+    PyPetWALKInvalidResponseStatus,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,7 +32,7 @@ class API:
         """Initialize API class."""
         self.server_host = host
         self.server_port = port
-        self.session = aiohttp.ClientSession()
+        self.session = ClientSession()
 
     async def __aenter__(self) -> "API":
         """Start API class from context manager."""
@@ -82,27 +87,38 @@ class API:
         _LOGGER.info("Calling %s with method %s", url, method)
         _LOGGER.debug("... and Parameters: %s", params)
         if method == "GET":
-            async with self.session.get(url) as resp:
-                if resp.status != 200:
-                    error = f"Incorrect status code received {resp.status}"
-                    _LOGGER.error(error)
-                    return {
-                        "status": resp.status,
-                        "content": await resp.text(),
-                        "error": True,
-                    }
-                return await resp.json()  # type: ignore[no-any-return]
+            try:
+                async with self.__get_session().get(url) as resp:
+                    if resp.status != 200:
+                        error = f"Incorrect status code received {resp.status}"
+                        _LOGGER.error(error)
+                        await self.close()
+                        raise PyPetWALKInvalidResponseStatus(error)
+                    return await resp.json()  # type: ignore[no-any-return]
+            except ClientConnectorError as ex:
+                _LOGGER.error("%s", ex)
+                await self.close()
+                raise PyPetWALKClientConnectionError(ex) from ex
+
         elif method == "PUT":
-            async with self.session.put(url, json=params) as resp:
-                response = {
-                    "status": resp.status,
-                    "content": "",
-                    "error": False,
-                }
-                if resp.status != 202:  # Currently, API returns only 202
-                    response["error"] = True
-                    _LOGGER.warning("Incorrect status code %d", resp.status)
-                response["content"] = await resp.text()
-                return response
+            try:
+                async with self.__get_session().put(url, json=params) as resp:
+                    if resp.status != 202:  # Currently, API returns only 202
+                        error = f"Incorrect status code received {resp.status}"
+                        _LOGGER.error(error)
+                        await self.close()
+                        raise PyPetWALKInvalidResponseStatus(error)
+                    return {}
+            except ClientConnectorError as ex:
+                _LOGGER.debug("%s", ex)
+                await self.close()
+                raise PyPetWALKClientConnectionError(ex) from ex
 
         return {}
+
+    def __get_session(self) -> ClientSession:
+        """Return current session, recreating if it was closed."""
+        if self.session.closed:
+            self.session = ClientSession()
+
+        return self.session
