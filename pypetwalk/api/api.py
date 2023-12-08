@@ -9,6 +9,7 @@ from aiohttp.client_exceptions import ClientConnectorError
 
 from pypetwalk.const import (
     API_HTTP_PROTOCOL,
+    API_REQUEST_TIMEOUT,
     API_PATH_MAPPING,
     API_STATE_DOOR,
     API_STATE_MAPPING_DOOR_CLOSE,
@@ -32,7 +33,7 @@ class API:
         """Initialize API class."""
         self.server_host = host
         self.server_port = port
-        self.session = ClientSession()
+        self.session = ClientSession(timeout=API_REQUEST_TIMEOUT)
 
     async def __aenter__(self) -> "API":
         """Start API class from context manager."""

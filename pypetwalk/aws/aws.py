@@ -11,6 +11,7 @@ from pycognito import Cognito
 
 from pypetwalk.const import (
     APP_VERSION,
+    AWS_REQUEST_TIMEOUT,
 )
 from pypetwalk.exceptions import (
     PyPetWALKClientAWSAuthenticationError,
@@ -34,7 +35,7 @@ class AWS:
         self.username = username
         self.password = password
         self.current_aws_user = None
-        self.session = ClientSession()
+        self.session = ClientSession(timeout=AWS_REQUEST_TIMEOUT)
 
     async def __aenter__(self) -> "AWS":
         """Start API class from context manager."""

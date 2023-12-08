@@ -9,6 +9,7 @@ from aiohttp import ClientSession, WSMsgType
 from aiohttp.client_exceptions import ClientConnectorError
 
 from pypetwalk.const import (
+    WS_REQUEST_TIMEOUT,
     WS_COMMAND_DEVICE_INFO,
     WS_COMMAND_FACTORY_RESET,
     WS_COMMAND_INIT_DRIVE_START,
@@ -45,7 +46,7 @@ class WS:
         """Initialize Websocket Class."""
         self.server_host = host
         self.server_port = port
-        self.session = ClientSession()
+        self.session = ClientSession(timeout=WS_REQUEST_TIMEOUT)
 
     async def __aenter__(self) -> "WS":
         """Start Websocket class from context manager."""
