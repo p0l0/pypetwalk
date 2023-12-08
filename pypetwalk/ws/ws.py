@@ -6,7 +6,7 @@ import logging
 from types import TracebackType
 
 from aiohttp import ClientSession, ClientTimeout, WSMsgType
-from aiohttp.client_exceptions import ClientConnectorError
+from aiohttp.client_exceptions import ClientConnectorError, ServerDisconnectedError
 
 from pypetwalk.const import (
     WS_REQUEST_TIMEOUT,
@@ -186,7 +186,7 @@ class WS:
                         if msg.type == WSMsgType.TEXT:
                             result = json.loads(msg.data)
                     return result
-        except ClientConnectorError as ex:
+        except (ClientConnectorError, ServerDisconnectedError) as ex:
             _LOGGER.debug("%s", ex)
             await self.close()
             raise PyPetWALKClientConnectionError(ex) from ex
