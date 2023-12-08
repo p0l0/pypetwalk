@@ -5,7 +5,7 @@ import json
 import logging
 from types import TracebackType
 
-from aiohttp import ClientSession, WSMsgType
+from aiohttp import ClientSession, ClientTimeout, WSMsgType
 from aiohttp.client_exceptions import ClientConnectorError
 
 from pypetwalk.const import (
@@ -46,7 +46,7 @@ class WS:
         """Initialize Websocket Class."""
         self.server_host = host
         self.server_port = port
-        self.session = ClientSession(timeout=WS_REQUEST_TIMEOUT)
+        self.session = ClientSession(timeout=ClientTimeout(total=WS_REQUEST_TIMEOUT))
 
     async def __aenter__(self) -> "WS":
         """Start Websocket class from context manager."""

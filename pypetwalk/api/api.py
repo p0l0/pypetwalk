@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from types import TracebackType
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ClientConnectorError
 
 from pypetwalk.const import (
@@ -33,7 +33,7 @@ class API:
         """Initialize API class."""
         self.server_host = host
         self.server_port = port
-        self.session = ClientSession(timeout=API_REQUEST_TIMEOUT)
+        self.session = ClientSession(timeout=ClientTimeout(total=API_REQUEST_TIMEOUT))
 
     async def __aenter__(self) -> "API":
         """Start API class from context manager."""

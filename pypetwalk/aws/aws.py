@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from types import TracebackType
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ClientConnectorError
 
 from pycognito import Cognito
@@ -35,7 +35,7 @@ class AWS:
         self.username = username
         self.password = password
         self.current_aws_user = None
-        self.session = ClientSession(timeout=AWS_REQUEST_TIMEOUT)
+        self.session = ClientSession(timeout=ClientTimeout(total=AWS_REQUEST_TIMEOUT))
 
     async def __aenter__(self) -> "AWS":
         """Start API class from context manager."""
