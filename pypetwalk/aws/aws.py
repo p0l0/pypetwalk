@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import functools
 import logging
 from types import TracebackType
 
@@ -58,11 +59,12 @@ class AWS:
 
     async def authenticate(self, username: str, password: str) -> dict:
         """Authenticate against AWS Cognito"""
-        user = Cognito(self.user_pool_id, self.client_id, username=username)
+        # Run authenticate without blocking the event loop
+        loop = asyncio.get_running_loop()
+
+        user = await loop.run_in_executor(None, functools.partial(Cognito, self.user_pool_id, self.client_id, username=username))
 
         try:
-            # Run authenticate without blocking the event loop
-            loop = asyncio.get_running_loop()
             await loop.run_in_executor(None, user.authenticate, password)
 
             self.current_aws_user = user
