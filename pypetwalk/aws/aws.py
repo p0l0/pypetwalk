@@ -1,6 +1,7 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from types import TracebackType
 
@@ -60,7 +61,10 @@ class AWS:
         user = Cognito(self.user_pool_id, self.client_id, username=username)
 
         try:
-            user.authenticate(password=password)
+            # Run authenticate without blocking the event loop
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, user.authenticate, password)
+
             self.current_aws_user = user
         except Exception as ex:
             _LOGGER.error("%s", ex)
