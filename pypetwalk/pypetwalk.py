@@ -17,9 +17,15 @@ from .const import (
     API_STATE_SYSTEM,
     API_STATE_TIME,
     WS_PORT,
+    AWS_URL,
+    AWS_USER_POOL_ID,
+    AWS_CLIENT_ID,
+    AWS_TIMELINE_INTEVAL_DAYS,
 )
 from .exceptions import PyPetWALKInvalidResponse, PyPetWALKInvalidResponseValue
 from .ws import WS
+
+from .aws import AWS
 
 logging.basicConfig(level=logging.DEBUG)
 _LOGGER = logging.getLogger(__name__)
@@ -29,11 +35,15 @@ class PyPetWALK:
     """Class for communicate with the petWALK.control module."""
 
     def __init__(
-        self, host: str, api_port: int = API_PORT, ws_port: int = WS_PORT
+        self, host: str, username: str, password: str,
+            api_port: int = API_PORT, ws_port: int = WS_PORT,
+            aws_url: str = AWS_URL,
+            aws_user_pool_id: str = AWS_USER_POOL_ID, aws_client_id: str = AWS_CLIENT_ID
     ) -> None:
         """Initialize pyPetWALK Class."""
         self.websocket_client = WS(host, ws_port)
         self.api_client = API(host, api_port)
+        self.aws_client = AWS(aws_url, aws_user_pool_id, aws_client_id, username, password)
 
     async def __aenter__(self) -> "PyPetWALK":
         """Start pyPetWALK class from context manager."""
@@ -144,3 +154,15 @@ class PyPetWALK:
     async def get_device_info(self) -> dict:
         """Get current device information."""
         return await self.websocket_client.device_info()
+
+    async def get_aws_update_info(self) -> dict:
+        """Gets Update Infos from AWS."""
+        return await self.aws_client.get_aws_update_info()
+
+    async def get_notification_settings(self) -> dict:
+        """Gets Notification Settings from AWS."""
+        return await self.aws_client.get_notification_settings()
+
+    async def get_timeline(self, door_id: int, interval_days: int = AWS_TIMELINE_INTEVAL_DAYS) -> dict:
+        """Gets Timeline for specific door_id and interval_days from AWS."""
+        return await self.aws_client.get_timeline(door_id, interval_days)

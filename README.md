@@ -50,4 +50,7 @@ Available functions and their implementation status:
 - [ ] ZigBee name device (Websocket)
 - [ ] ZigBee remove device (Websocket)
 - [ ] ZigBee update (Websocket)
+- [x] Update Infos (AWS)
+- [x] Get Notification Settings (AWS)
+- [x] Get Timeline (AWS)
 

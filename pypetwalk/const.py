@@ -1,9 +1,15 @@
 """Constants for the petWALK integration."""
 from typing import Final
 
+APP_VERSION: Final = "1.4.28"
+
 API_PORT: Final = 8080
 API_HTTP_PROTOCOL: Final = "http"
 WS_PORT: Final = 1234
+AWS_URL: Final = "https://caln02rdoj.execute-api.eu-west-1.amazonaws.com/Master"
+AWS_USER_POOL_ID: Final = "eu-west-1_NaHCncUdX"
+AWS_CLIENT_ID: Final = "2qht0pl3vufdq8dmah5crv2e0o"
+AWS_TIMELINE_INTEVAL_DAYS: Final = 365
 
 WS_COMMAND_RFID_START_LEARN: Final = "RFIDStartLearn"
 WS_COMMAND_RFID_STOP_LEARN: Final = "RFIDStopLearn"
