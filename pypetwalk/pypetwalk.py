@@ -27,7 +27,7 @@ from .ws import WS
 
 from .aws import AWS
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -58,6 +58,18 @@ class PyPetWALK:
         """Stop pyPetWALK class from context manager."""
         await self.websocket_client.close()
         await self.api_client.close()
+
+    async def get_modes(self):
+        try:
+            return await self.api_client.get_modes()
+        finally:
+            await self.api_client.close()
+
+    async def get_states(self):
+        try:
+            return await self.api_client.get_states()
+        finally:
+            await self.api_client.close()
 
     async def set_brightness_sensor(self, state: bool) -> bool:
         """Set new value for brightness sensor."""
