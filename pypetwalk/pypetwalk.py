@@ -59,6 +59,14 @@ class PyPetWALK:
         await self.websocket_client.close()
         await self.api_client.close()
 
+    async def get_api_data(self):
+        try:
+            modes = await self.api_client.get_modes()
+            states = await self.api_client.get_states()
+            return modes | states
+        finally:
+            await self.api_client.close()
+
     async def get_modes(self):
         try:
             return await self.api_client.get_modes()
