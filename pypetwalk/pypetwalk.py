@@ -67,6 +67,27 @@ class PyPetWALK:
         finally:
             await self.api_client.close()
 
+    async def get_device_id(self):
+        try:
+            update_info = await self.aws_client.get_aws_update_info()
+            return update_info["update_states"][0]['deviceId']
+        finally:
+            await self.aws_client.close()
+
+    async def get_available_pets(self):
+        try:
+            device_info = await self.websocket_client.device_info()
+            return device_info['responses'][0]['DeviceInfo'][0]["pets"]
+        finally:
+            await self.websocket_client.close()
+
+    async def get_device_name(self):
+        try:
+            device_info = await self.websocket_client.device_info()
+            return device_info['responses'][0]['DeviceInfo'][0]['device_name']
+        finally:
+            await self.websocket_client.close()
+
     async def get_modes(self):
         try:
             return await self.api_client.get_modes()
