@@ -70,3 +70,11 @@ API_STATE_MAPPING_DOOR_CLOSE: Final = "close"
 API_STATE_MAPPING_DOOR_CLOSED: Final = "closed"
 API_STATE_MAPPING_SYSTEM_ON: Final = "on"
 API_STATE_MAPPING_SYSTEM_OFF: Final = "off"
+
+PET_SPECIES_MAPPING: dict[int, str] = {
+    0: "cat",
+    1: "dog",
+}
+
+EVENT_DIRECTION_IN: Final = "IN"
+EVENT_DIRECTION_OUT: Final = "OUT"

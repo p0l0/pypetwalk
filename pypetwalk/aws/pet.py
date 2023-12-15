@@ -3,17 +3,21 @@ from __future__ import annotations
 import datetime
 
 
-class Pet:
+class Pet(object):
 
-    def __init__(self, id: str, name: str, pet_type: str, config: dict, created: int):
+    def __init__(self, id: str = None, name: str = None, species: str = None, config: dict = None, created: int = None):
         self._id = id
         self._name = name
-        self._pet_type = pet_type
-        if 'in' in config:
-            self._config_in = config['in']
-        if 'out' in config:
-            self._config_out = config['out']
-        self.created = created
+        self._species = species
+
+        if config is not None:
+            if 'in' in config:
+                self._config_in = config['in']
+            if 'out' in config:
+                self._config_out = config['out']
+
+        if created is not None:
+            self.created = created
 
     @property
     def id(self) -> str:
@@ -32,12 +36,12 @@ class Pet:
         self._name = value
 
     @property
-    def pet_type(self) -> str:
-        return self._pet_type
+    def species(self) -> str:
+        return self._species
 
-    @pet_type.setter
-    def pet_type(self, value):
-        self._pet_type = value
+    @species.setter
+    def species(self, value):
+        self._species = value
 
     @property
     def config_in(self) -> str:

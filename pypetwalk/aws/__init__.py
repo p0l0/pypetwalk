@@ -2,3 +2,4 @@
 # flake8: noqa
 from .aws import AWS
 from .pet import Pet
+from .event import Event

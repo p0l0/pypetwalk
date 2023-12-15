@@ -26,7 +26,7 @@ from pypetwalk.exceptions import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class AWS:
+class AWS(object):
     """Class for handling AWS API calls."""
 
     def __init__(self, url: str, user_pool_id: str, client_id: str, username: str, password: str) -> None:

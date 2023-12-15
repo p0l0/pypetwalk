@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from types import TracebackType
+from datetime import datetime
 
 from .api import API
 from .const import (
@@ -28,6 +29,7 @@ from .ws import WS
 from .aws import (
     AWS,
     Pet,
+    Event,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -108,6 +110,32 @@ class PyPetWALK:
             return await self.api_client.get_modes()
         finally:
             await self.api_client.close()
+
+    async def get_pet_status(self, door_id: int):
+        timeline = await self.get_timeline(door_id, 1)
+
+        # last_event = datetime.fromtimestamp(0)
+        status = {}
+        for entry in timeline:
+            event = Event(entry)
+            if event.event_type != "open" or event.pet is None:
+                continue
+
+
+            pet_id = event.pet.id
+            if pet_id not in status.keys() or status[pet_id].date < event.date:
+                status[pet_id] = event
+                continue
+
+            # if status[pet_id].date < event.date:
+            #     if event.direction == "IN":
+            #         status[pet_id]['status'] = True
+            #     elif event.direction == "OUT":
+            #         status[pet_id]['status'] = False
+            #     status[pet_id]['last_event'] = event.date
+
+        return status
+
 
     async def get_states(self):
         try:
@@ -224,4 +252,7 @@ class PyPetWALK:
 
     async def get_timeline(self, door_id: int, interval_days: int = AWS_TIMELINE_INTEVAL_DAYS) -> dict:
         """Gets Timeline for specific door_id and interval_days from AWS."""
-        return await self.aws_client.get_timeline(door_id, interval_days)
+        try:
+            return await self.aws_client.get_timeline(door_id, interval_days)
+        finally:
+            await self.aws_client.close()
