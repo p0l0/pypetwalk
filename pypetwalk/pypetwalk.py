@@ -25,7 +25,10 @@ from .const import (
 from .exceptions import PyPetWALKInvalidResponse, PyPetWALKInvalidResponseValue
 from .ws import WS
 
-from .aws import AWS
+from .aws import (
+    AWS,
+    Pet,
+)
 
 logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
@@ -80,10 +83,16 @@ class PyPetWALK:
         finally:
             await self.aws_client.close()
 
-    async def get_available_pets(self):
+    async def get_available_pets(self) -> list[Pet]:
         try:
             device_info = await self.websocket_client.device_info()
-            return device_info['responses'][0]['DeviceInfo'][0]["pets"]
+
+            pets = []
+            for pet in device_info['responses'][0]['DeviceInfo'][0]["pets"]:
+                if pet[1] == None:
+                    continue
+                pets.append(Pet(id=pet[0], name=pet[1], pet_type=pet[2], config=pet[3], created=pet[4]))
+            return pets
         finally:
             await self.websocket_client.close()
 
