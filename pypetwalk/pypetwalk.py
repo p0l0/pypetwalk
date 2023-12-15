@@ -93,7 +93,7 @@ class PyPetWALK:
             for pet in device_info['responses'][0]['DeviceInfo'][0]["pets"]:
                 if pet[1] == None:
                     continue
-                pets.append(Pet(id=pet[0], name=pet[1], pet_type=pet[2], config=pet[3], created=pet[4]))
+                pets.append(Pet(id=pet[0], name=pet[1], species=pet[2], config=pet[3], created=pet[4]))
             return pets
         finally:
             await self.websocket_client.close()
