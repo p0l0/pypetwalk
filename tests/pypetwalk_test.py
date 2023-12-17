@@ -45,7 +45,7 @@ from pypetwalk.ws import Request
     ],
 )
 async def test_set_values_activate(
-    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
+    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
 ) -> None:
     """Test API set methods with activation."""
 
@@ -84,7 +84,7 @@ async def test_set_values_activate(
     ],
 )
 async def test_set_values_deactivate(
-    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
+    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
 ) -> None:
     """Test API set methods with deactivation."""
 
@@ -123,7 +123,7 @@ async def test_set_values_deactivate(
     ],
 )
 async def test_get_values_activated(
-    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
+    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
 ) -> None:
     """Test API get methods with activated mode."""
 
@@ -163,7 +163,7 @@ async def test_get_values_activated(
     ],
 )
 async def test_get_values_deactivated(
-    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
+    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
 ) -> None:
     """Test API get methods with deactivated mode."""
 
@@ -387,7 +387,7 @@ def test_ws_request_object(ws_request_data, ws_request_json):
 
 
 @pytest.mark.asyncio
-async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
+async def test_get_api_data(aiohttp_server: any, fake_api: "FakeAPI") -> None:
     """Test API set methods with activation."""
 
     async def handler(request: web.Request) -> web.Response:
