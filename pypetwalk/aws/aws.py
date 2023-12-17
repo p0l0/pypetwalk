@@ -8,28 +8,25 @@ from types import TracebackType
 
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ClientConnectorError
-
 from pycognito import Cognito
 
-from pypetwalk.const import (
-    APP_VERSION,
-    AWS_REQUEST_TIMEOUT,
-)
+from pypetwalk.const import APP_VERSION, AWS_REQUEST_TIMEOUT
 from pypetwalk.exceptions import (
     PyPetWALKClientAWSAuthenticationError,
+    PyPetWALKClientAWSInvalidTokens,
     PyPetWALKClientConnectionError,
     PyPetWALKInvalidResponseStatus,
-    PyPetWALKClientAWSMissingAuthentication,
-    PyPetWALKClientAWSInvalidTokens,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class AWS(object):
+class AWS:
     """Class for handling AWS API calls."""
 
-    def __init__(self, url: str, user_pool_id: str, client_id: str, username: str, password: str) -> None:
+    def __init__(
+        self, url: str, user_pool_id: str, client_id: str, username: str, password: str
+    ) -> None:
         """Initialize API class."""
         self.url = url
         self.user_pool_id = user_pool_id
@@ -39,7 +36,7 @@ class AWS(object):
         self.current_aws_user = None
         self.session = ClientSession(timeout=ClientTimeout(total=AWS_REQUEST_TIMEOUT))
 
-    async def __aenter__(self) -> "AWS":
+    async def __aenter__(self) -> AWS:
         """Start API class from context manager."""
         return self
 
@@ -58,11 +55,16 @@ class AWS(object):
             await self.session.close()
 
     async def authenticate(self, username: str, password: str) -> dict:
-        """Authenticate against AWS Cognito"""
+        """Authenticate against AWS Cognito."""
         # Run authenticate without blocking the event loop
         loop = asyncio.get_running_loop()
 
-        user = await loop.run_in_executor(None, functools.partial(Cognito, self.user_pool_id, self.client_id, username=username))
+        user = await loop.run_in_executor(
+            None,
+            functools.partial(
+                Cognito, self.user_pool_id, self.client_id, username=username
+            ),
+        )
 
         try:
             await loop.run_in_executor(None, user.authenticate, password)
@@ -85,9 +87,12 @@ class AWS(object):
 
     async def get_timeline(self, door_id: int, interval_days: int) -> dict:
         """Gets Timeline for specific door_id and interval_days from AWS."""
-        return await self.get(f"door_events?deviceID={door_id}&intervalDays={interval_days}")
+        return await self.get(
+            f"door_events?deviceID={door_id}&intervalDays={interval_days}"
+        )
 
-    async def get(self, path: str)-> dict:
+    async def get(self, path: str) -> dict:
+        """Gets Data from AWS API."""
         url = f"{self.url}/{path}"
         _LOGGER.info("Calling AWS URL %s", url)
         try:
@@ -108,21 +113,18 @@ class AWS(object):
         if not self.current_aws_user:
             _LOGGER.info("Missing AWS Authentication, we need to authenticate before")
             await self.authenticate(self.username, self.password)
-            # error = f"Missing AWS Authentication, please authenticate first"
-            # _LOGGER.error(error)
-            # raise PyPetWALKClientAWSMissingAuthentication(error)
 
         try:
             _LOGGER.info("Check for Valid tokens, if not valid, renew")
             self.current_aws_user.check_token()
         except Exception as ex:
             _LOGGER.error("%s", ex)
-            raise PyPetWALKClientAWSInvalidTokens(ex)
+            raise PyPetWALKClientAWSInvalidTokens from ex
 
         headers = {
-            'Authorization': self.current_aws_user.id_token,
-            'UserAccess': self.current_aws_user.access_token,
-            'Client-Version': APP_VERSION
+            "Authorization": self.current_aws_user.id_token,
+            "UserAccess": self.current_aws_user.access_token,
+            "Client-Version": APP_VERSION,
         }
 
         return headers

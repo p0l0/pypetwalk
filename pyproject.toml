@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ["py39"]
+target-version = ["py311"]
 exclude = 'generated'
 
 [tool.isort]
@@ -17,7 +17,7 @@ forced_separate = [
 combine_as_imports = true
 
 [tool.pylint.MASTER]
-py-version = "3.9"
+py-version = "3.11"
 ignore = [
     "tests",
 ]
@@ -59,7 +59,6 @@ good-names = [
 # locally-disabled - it spams too much
 # duplicate-code - unavoidable
 # cyclic-import - doesn't test if both import on load
-# abstract-class-little-used - prevents from setting right foundation
 # unused-argument - generic callbacks and setup methods create a lot of warnings
 # too-many-* - are not enforced for the sake of readability
 # too-few-* - same as too-many-*
@@ -74,7 +73,6 @@ good-names = [
 # consider-using-assignment-expr (Pylint CodeStyle extension)
 disable = [
     "format",
-    "abstract-class-little-used",
     "abstract-method",
     "cyclic-import",
     "duplicate-code",
@@ -117,8 +115,8 @@ expected-line-ending-format = "LF"
 
 [tool.pylint.EXCEPTIONS]
 overgeneral-exceptions = [
-    "BaseException",
-    "Exception",
+    "builtins.BaseException",
+    "builtins.Exception",
 ]
 
 [tool.pylint.TYPING]

@@ -78,3 +78,11 @@ PET_SPECIES_MAPPING: dict[int, str] = {
 
 EVENT_DIRECTION_IN: Final = "IN"
 EVENT_DIRECTION_OUT: Final = "OUT"
+
+EVENT_TYPE_OPEN: Final = "open"
+EVENT_TYPE_CLOSE: Final = "close"
+EVENT_TYPE_ONLINE: Final = "online"
+EVENT_TYPE_OFFLINE: Final = "offline"
+EVENT_TYPE_ON: Final = "on"
+EVENT_TYPE_OFF: Final = "off"
+

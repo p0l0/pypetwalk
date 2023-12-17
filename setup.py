@@ -18,7 +18,7 @@ with open(path.join(HERE, PACKAGE_NAME, "__version__.py"), encoding="utf-8") as 
 
 PACKAGES = find_packages(exclude=["tests", "tests.*", "dist", "build"])
 
-REQUIRES = ["aiohttp>=3.8.1"]
+REQUIRES = ["aiohttp>=3.8.1", "pycognito==2023.5.0"]
 
 setup(
     name=PACKAGE_NAME,
@@ -35,7 +35,7 @@ setup(
     package_data={"pypetwalk": ["py.typed"]},
     zip_safe=False,
     platforms="any",
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=REQUIRES,
     keywords=["petwalk", "petwalk.control", "home", "automation"],
     classifiers=[
@@ -43,8 +43,8 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Home Automation",
     ],
 )

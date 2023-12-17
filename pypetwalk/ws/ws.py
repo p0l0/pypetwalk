@@ -9,7 +9,6 @@ from aiohttp import ClientSession, ClientTimeout, WSMsgType
 from aiohttp.client_exceptions import ClientConnectorError, ServerDisconnectedError
 
 from pypetwalk.const import (
-    WS_REQUEST_TIMEOUT,
     WS_COMMAND_DEVICE_INFO,
     WS_COMMAND_FACTORY_RESET,
     WS_COMMAND_INIT_DRIVE_START,
@@ -30,6 +29,7 @@ from pypetwalk.const import (
     WS_COMMAND_ZIGBEE_NAME_DEVICE,
     WS_COMMAND_ZIGBEE_REMOVE_DEVICE,
     WS_COMMAND_ZIGBEE_UPDATE,
+    WS_REQUEST_TIMEOUT,
     ZIGBEE_DEFAULT_JOIN_TYPE,
 )
 from pypetwalk.exceptions import PyPetWALKClientConnectionError
@@ -48,7 +48,7 @@ class WS:
         self.server_port = port
         self.session = ClientSession(timeout=ClientTimeout(total=WS_REQUEST_TIMEOUT))
 
-    async def __aenter__(self) -> "WS":
+    async def __aenter__(self) -> WS:
         """Start Websocket class from context manager."""
         return self
 

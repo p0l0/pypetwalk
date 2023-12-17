@@ -9,8 +9,8 @@ from aiohttp.client_exceptions import ClientConnectorError, ServerDisconnectedEr
 
 from pypetwalk.const import (
     API_HTTP_PROTOCOL,
-    API_REQUEST_TIMEOUT,
     API_PATH_MAPPING,
+    API_REQUEST_TIMEOUT,
     API_STATE_DOOR,
     API_STATE_MAPPING_DOOR_CLOSE,
     API_STATE_MAPPING_DOOR_OPEN,
@@ -35,7 +35,7 @@ class API:
         self.server_port = port
         self.session = ClientSession(timeout=ClientTimeout(total=API_REQUEST_TIMEOUT))
 
-    async def __aenter__(self) -> "API":
+    async def __aenter__(self) -> API:
         """Start API class from context manager."""
         return self
 
@@ -53,7 +53,7 @@ class API:
         if self.session:
             await self.session.close()
 
-    async def get_modes(self) -> dict:
+    async def get_modes(self) -> dict[str, str]:
         """Get current 'modes' from API."""
         return await self.send_command("mode", None)
 

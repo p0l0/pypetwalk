@@ -1,49 +1,59 @@
+"""pypetwalk is a Python library to communicate with the petWALK.control module."""
 from __future__ import annotations
 
 from datetime import datetime
-from .pet import Pet
+
 from pypetwalk.const import PET_SPECIES_MAPPING
 
-class Event(object):
+from .pet import Pet
+
+
+class Event:
+    """Class that represents an AWS Event."""
+
     _rfid_index = None
     _direction = None
     _local_component_id = None
     _pet = None
 
-    def __init__(self, event: dict = None): #, id: int, event_type: str, event_source: str, date: str, pet: dict = None, properties: dict = None):
+    def __init__(
+        self, event: dict = None
+    ):  # , id: int, event_type: str, event_source: str, date: str, pet: dict = None, properties: dict = None):
         if event is not None:
-            self.id = event['id']
-            self.event_type = event['event_type']
-            self.event_source = event['event_source']
-            self.date = event['date']
+            self.id = event["id"]
+            self.event_type = event["event_type"]
+            self.event_source = event["event_source"]
+            self.date = event["date"]
 
-            if event['properties'] is not None:
-                for key, value in event['properties'].items():
+            if event["properties"] is not None:
+                for key, value in event["properties"].items():
                     match key:
-                        case 'rfid_index':
+                        case "rfid_index":
                             self.rfid_index = value
-                        case 'direction':
+                        case "direction":
                             self.direction = value
-                        case 'localComponentId':
+                        case "localComponentId":
                             self.local_component_id = value
-                        case 'pet':
+                        case "pet":
                             self.pet = value
                         case _:
-                            raise ValueError(f'Unknown property: {key}')
+                            raise ValueError(f"Unknown property: {key}")
 
-            if event['pet'] is not None:
-                self.pet = event['pet']
+            if event["pet"] is not None:
+                self.pet = event["pet"]
 
     @property
     def id(self) -> int:
+        """Return the event ID."""
         return self._id
 
     @id.setter
-    def id(self, id: int):
-        self._id = id
+    def id(self, event_id: int):
+        self._id = event_id
 
     @property
     def event_type(self) -> str:
+        """Return the event type."""
         return self._event_type
 
     @event_type.setter
@@ -52,6 +62,7 @@ class Event(object):
 
     @property
     def event_source(self) -> str:
+        """Return the event source."""
         return self._event_source
 
     @event_source.setter
@@ -60,6 +71,7 @@ class Event(object):
 
     @property
     def pet(self) -> Pet:
+        """Return the event Pet."""
         return self._pet
 
     @pet.setter
@@ -73,7 +85,7 @@ class Event(object):
                 case "name":
                     pet.name = pet_data[key]
                 case "species":
-                    if type(pet_data[key]) is int:
+                    if isinstance(pet_data[key], int):
                         pet.species = PET_SPECIES_MAPPING[pet_data[key]]
                     else:
                         pet.species = pet_data[key]
@@ -83,6 +95,7 @@ class Event(object):
 
     @property
     def date(self) -> datetime:
+        """Return the event date."""
         return self._date
 
     @date.setter
@@ -91,6 +104,7 @@ class Event(object):
 
     @property
     def rfid_index(self) -> int:
+        """Return the event RFID Index."""
         return self._rfid_index
 
     @rfid_index.setter
@@ -99,6 +113,7 @@ class Event(object):
 
     @property
     def direction(self) -> str:
+        """Return the event direction."""
         return self._direction
 
     @direction.setter
@@ -107,9 +122,9 @@ class Event(object):
 
     @property
     def local_component_id(self) -> str:
-        return self._last_component_id
+        """Return the event local component ID."""
+        return self._local_component_id
 
     @local_component_id.setter
     def local_component_id(self, local_component_id: str):
-        self._last_component_id = local_component_id
-
+        self._local_component_id = local_component_id

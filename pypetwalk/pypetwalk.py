@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import logging
 from types import TracebackType
-from datetime import datetime
 
 from .api import API
+from .aws import AWS, Event, Pet
 from .const import (
     API_METHOD_MAPPING,
     API_PORT,
@@ -17,20 +17,15 @@ from .const import (
     API_STATE_RFID,
     API_STATE_SYSTEM,
     API_STATE_TIME,
-    WS_PORT,
-    AWS_URL,
-    AWS_USER_POOL_ID,
     AWS_CLIENT_ID,
     AWS_TIMELINE_INTEVAL_DAYS,
+    AWS_URL,
+    AWS_USER_POOL_ID,
+    EVENT_TYPE_OPEN,
+    WS_PORT,
 )
 from .exceptions import PyPetWALKInvalidResponse, PyPetWALKInvalidResponseValue
 from .ws import WS
-
-from .aws import (
-    AWS,
-    Pet,
-    Event,
-)
 
 logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
@@ -40,17 +35,24 @@ class PyPetWALK:
     """Class for communicate with the petWALK.control module."""
 
     def __init__(
-        self, host: str, username: str, password: str,
-            api_port: int = API_PORT, ws_port: int = WS_PORT,
-            aws_url: str = AWS_URL,
-            aws_user_pool_id: str = AWS_USER_POOL_ID, aws_client_id: str = AWS_CLIENT_ID
+        self,
+        host: str,
+        username: str,
+        password: str,
+        api_port: int = API_PORT,
+        ws_port: int = WS_PORT,
+        aws_url: str = AWS_URL,
+        aws_user_pool_id: str = AWS_USER_POOL_ID,
+        aws_client_id: str = AWS_CLIENT_ID,
     ) -> None:
         """Initialize pyPetWALK Class."""
         self.websocket_client = WS(host, ws_port)
         self.api_client = API(host, api_port)
-        self.aws_client = AWS(aws_url, aws_user_pool_id, aws_client_id, username, password)
+        self.aws_client = AWS(
+            aws_url, aws_user_pool_id, aws_client_id, username, password
+        )
 
-    async def __aenter__(self) -> "PyPetWALK":
+    async def __aenter__(self) -> PyPetWALK:
         """Start pyPetWALK class from context manager."""
         return self
 
@@ -63,85 +65,89 @@ class PyPetWALK:
         """Stop pyPetWALK class from context manager."""
         await self.websocket_client.close()
         await self.api_client.close()
+        await self.aws_client.close()
 
-    async def get_api_data(self):
-        try:
-            modes = await self.get_modes()
-            states = await self.get_states()
-            response = modes | states
+    async def get_api_data(self) -> dict[str, bool]:
+        """Get all Data from Local API."""
+        modes = await self.get_modes()
+        states = await self.get_states()
+        merged = modes | states
 
-            for key in response.keys():
-                if response[key] in API_STATE_MAPPING:
-                    response[key] = API_STATE_MAPPING[response[key]]
+        result = {}
+        for key, value in merged.items():
+            if value in API_STATE_MAPPING:
+                result[key] = API_STATE_MAPPING[value]
 
-            return response
-        finally:
-            await self.api_client.close()
+        return result
 
-    async def get_device_id(self):
-        try:
-            update_info = await self.aws_client.get_aws_update_info()
-            return update_info["update_states"][0]['deviceId']
-        finally:
-            await self.aws_client.close()
-
-    async def get_available_pets(self) -> list[Pet]:
-        try:
-            device_info = await self.websocket_client.device_info()
-
-            pets = []
-            for pet in device_info['responses'][0]['DeviceInfo'][0]["pets"]:
-                if pet[1] == None:
-                    continue
-                pets.append(Pet(id=pet[0], name=pet[1], species=pet[2], config=pet[3], created=pet[4]))
-            return pets
-        finally:
-            await self.websocket_client.close()
-
-    async def get_device_name(self):
-        try:
-            device_info = await self.websocket_client.device_info()
-            return device_info['responses'][0]['DeviceInfo'][0]['device_name']
-        finally:
-            await self.websocket_client.close()
-
-    async def get_modes(self):
+    async def get_modes(self) -> dict[str, str]:
+        """Returns the Modes for our Door."""
         try:
             return await self.api_client.get_modes()
         finally:
             await self.api_client.close()
 
-    async def get_pet_status(self, door_id: int):
-        timeline = await self.get_timeline(door_id, 1)
-
-        # last_event = datetime.fromtimestamp(0)
-        status = {}
-        for entry in timeline:
-            event = Event(entry)
-            if event.event_type != "open" or event.pet is None:
-                continue
-
-
-            pet_id = event.pet.id
-            if pet_id not in status.keys() or status[pet_id].date < event.date:
-                status[pet_id] = event
-                continue
-
-            # if status[pet_id].date < event.date:
-            #     if event.direction == "IN":
-            #         status[pet_id]['status'] = True
-            #     elif event.direction == "OUT":
-            #         status[pet_id]['status'] = False
-            #     status[pet_id]['last_event'] = event.date
-
-        return status
-
-
-    async def get_states(self):
+    async def get_states(self) -> dict[str, str]:
+        """Returns the States for our Door."""
         try:
             return await self.api_client.get_states()
         finally:
             await self.api_client.close()
+
+    async def get_device_id(self) -> str:
+        """Returns the Device ID for our Door."""
+        try:
+            update_info = await self.aws_client.get_aws_update_info()
+            return update_info["update_states"][0]["deviceId"]
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
+    async def get_device_name(self) -> str:
+        """Returns the Device Name for our Door."""
+        try:
+            device_info = await self.websocket_client.device_info()
+            return device_info["responses"][0]["DeviceInfo"][0]["device_name"]
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
+    async def get_available_pets(self) -> list[Pet]:
+        """Returns list of available Pets."""
+        try:
+            device_info = await self.websocket_client.device_info()
+
+            pets = []
+            for pet in device_info["responses"][0]["DeviceInfo"][0]["pets"]:
+                if pet[1] is None:
+                    continue
+                pets.append(
+                    Pet(
+                        pet_id=pet[0],
+                        name=pet[1],
+                        species=pet[2],
+                        config=pet[3],
+                        created=pet[4],
+                    )
+                )
+                return pets
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
+    async def get_pet_status(self, door_id: int) -> dict[str, Event]:
+        """Returns current Pet's status.'"""
+        timeline = await self.get_timeline(door_id, 1)
+
+        status = {}
+        for entry in timeline:
+            event = Event(entry)
+            if event.event_type != EVENT_TYPE_OPEN or event.pet is None:
+                continue
+
+            pet_id = event.pet.id
+            if pet_id not in status or status[pet_id].date < event.date:
+                status[pet_id] = event
+                continue
+
+        return status
 
     async def set_brightness_sensor(self, state: bool) -> bool:
         """Set new value for brightness sensor."""
@@ -250,7 +256,9 @@ class PyPetWALK:
         """Gets Notification Settings from AWS."""
         return await self.aws_client.get_notification_settings()
 
-    async def get_timeline(self, door_id: int, interval_days: int = AWS_TIMELINE_INTEVAL_DAYS) -> dict:
+    async def get_timeline(
+        self, door_id: int, interval_days: int = AWS_TIMELINE_INTEVAL_DAYS
+    ) -> dict:
         """Gets Timeline for specific door_id and interval_days from AWS."""
         try:
             return await self.aws_client.get_timeline(door_id, interval_days)

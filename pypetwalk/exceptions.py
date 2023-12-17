@@ -44,6 +44,7 @@ class PyPetWALKInvalidResponseStatus(BasePyPetWALKException):
         """Init the PyPetWALKInvalidResponseStatus."""
         super().__init__("PyPetWALKInvalidResponseStatus", *args)
 
+
 class PyPetWALKClientAWSAuthenticationError(BasePyPetWALKException):
     """pypetwalk PyPetWALKClientAWSAuthenticationError exception."""
 
@@ -51,12 +52,6 @@ class PyPetWALKClientAWSAuthenticationError(BasePyPetWALKException):
         """Init the PyPetWALKClientAWSAuthenticationError."""
         super().__init__("PyPetWALKClientAWSAuthenticationError", *args)
 
-class PyPetWALKClientAWSMissingAuthentication(BasePyPetWALKException):
-    """pypetwalk PyPetWALKClientAWSMissingAuthentication exception."""
-
-    def __init__(self, *args: Any) -> None:
-        """Init the PyPetWALKClientAWSMissingAuthentication."""
-        super().__init__("PyPetWALKClientAWSMissingAuthentication", *args)
 
 class PyPetWALKClientAWSInvalidTokens(BasePyPetWALKException):
     """pypetwalk PyPetWALKClientAWSInvalidTokens exception."""
