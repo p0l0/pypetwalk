@@ -13,13 +13,11 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=f8b424)](https://github.com/pre-commit/pre-commit)
 ![License](https://img.shields.io/github/license/p0l0/pypetwalk)
 
-`pypetwalk` is a Python 3 (>= 3.9) library to communicate with the petWALK.control module.
+`pypetwalk` is a Python 3 (>= 3.11) library to communicate with the petWALK.control module.
 
 It is intended to be used in a custom_component for [Home Assistant](https://www.home-assistant.io/).
 
-Implementation is based on the [petWALK.control local API (beta) (1.0.0)](https://control.petwalk.solutions/doc/api/) and some reverse engineering of the internal Websocket communication.
-
-Unfortunately, currently there is no way to get the history about door events.
+Implementation is based on the [petWALK.control local API (beta) (1.0.0)](https://control.petwalk.solutions/doc/api/) and some reverse engineering of the internal Websocket and AWS communication.
 
 Available functions and their implementation status:
 

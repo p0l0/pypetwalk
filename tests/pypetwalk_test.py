@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 
 from aiohttp import WSMsgType, web
-#from moto import mock_cognitoidp
+from moto import mock_cognitoidp
 import pytest
 
 from pypetwalk import PyPetWALK
@@ -30,6 +30,8 @@ from pypetwalk.exceptions import (
 )
 from pypetwalk.ws import Request
 
+from .conftest import FakeAPI
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -45,7 +47,7 @@ from pypetwalk.ws import Request
     ],
 )
 async def test_set_values_activate(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API set methods with activation."""
 
@@ -84,7 +86,7 @@ async def test_set_values_activate(
     ],
 )
 async def test_set_values_deactivate(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API set methods with deactivation."""
 
@@ -123,7 +125,7 @@ async def test_set_values_deactivate(
     ],
 )
 async def test_get_values_activated(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API get methods with activated mode."""
 
@@ -163,7 +165,7 @@ async def test_get_values_activated(
     ],
 )
 async def test_get_values_deactivated(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API get methods with deactivated mode."""
 
@@ -387,7 +389,7 @@ def test_ws_request_object(ws_request_data, ws_request_json):
 
 
 @pytest.mark.asyncio
-async def test_get_api_data(aiohttp_server: any, fake_api: "FakeAPI") -> None:
+async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
     """Test API set methods with activation."""
 
     async def handler(request: web.Request) -> web.Response:
@@ -411,3 +413,29 @@ async def test_get_api_data(aiohttp_server: any, fake_api: "FakeAPI") -> None:
 
 
 # @TODO - We need to test our new methods and the whole AWS Implementation!
+
+
+# @mock_cognitoidp
+# @pytest.mark.asyncio
+# async def test_get_aws_update_info(aiohttp_server: any, fake_api: FakeAPI) -> None:
+#     """Test AWS get Update Info."""
+#
+#     # @TODO - Fake the AWS API!
+#     async def handler(request: web.Request) -> web.Response:
+#         json_response = fake_api.get_activated_json_for_path(path)
+#         if not json_response:
+#             return web.json_response({}, status=404)
+#
+#         return web.json_response(json_response, status=200)
+#
+#     app = web.Application()
+#     for path in API_PATH_MAPPING.values():
+#         app.add_routes([web.get(path, handler)])
+#
+#     server = await aiohttp_server(app)
+#     client = PyPetWALK(
+#         server.host, api_port=server.port, username="username", password="password"
+#     )
+#
+#     await client.get_api_data()  # get_aws_update_info()
+#     await server.close()

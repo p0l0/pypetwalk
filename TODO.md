@@ -1,1 +1,2 @@
 - Test and implement all known WS Commands
+- Implement all AWS Commands

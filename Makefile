@@ -14,6 +14,8 @@ all:
 	@echo ""
 	@echo "pydocstyle      -- run pydocstyle tests"
 	@echo ""
+	@echo "tox            -- run tox tests"
+	@echo ""
 	@echo "coverage        -- create coverage report"
 	@echo ""
 	@echo "clean           -- cleanup working directory"
@@ -39,6 +41,9 @@ pre-commit:
 
 pydocstyle:
 	@pydocstyle pypetwalk tests/*.py tests/*.py *.py
+
+tox:
+	@tox
 
 coverage:
 	pytest --cov-report html --cov pypetwalk --verbose
