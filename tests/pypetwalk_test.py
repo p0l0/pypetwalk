@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 
 from aiohttp import WSMsgType, web
-from moto import mock_cognitoidp
 import pytest
 
 from pypetwalk import PyPetWALK
@@ -414,7 +413,7 @@ async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
 
 # @TODO - We need to test our new methods and the whole AWS Implementation!
 
-
+# from moto import mock_cognitoidp
 # @mock_cognitoidp
 # @pytest.mark.asyncio
 # async def test_get_aws_update_info(aiohttp_server: any, fake_api: FakeAPI) -> None:
