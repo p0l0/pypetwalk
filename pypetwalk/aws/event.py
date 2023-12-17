@@ -16,9 +16,8 @@ class Event:
     _local_component_id = None
     _pet = None
 
-    def __init__(
-        self, event: dict = None
-    ):  # , id: int, event_type: str, event_source: str, date: str, pet: dict = None, properties: dict = None):
+    def __init__(self, event: dict | None = None):
+        """Initialize Event Object."""
         if event is not None:
             self.id = event["id"]
             self.event_type = event["event_type"]
@@ -48,7 +47,7 @@ class Event:
         return self._id
 
     @id.setter
-    def id(self, event_id: int):
+    def id(self, event_id: int) -> None:
         self._id = event_id
 
     @property
@@ -57,7 +56,7 @@ class Event:
         return self._event_type
 
     @event_type.setter
-    def event_type(self, event_type: str):
+    def event_type(self, event_type: str) -> None:
         self._event_type = event_type
 
     @property
@@ -66,16 +65,16 @@ class Event:
         return self._event_source
 
     @event_source.setter
-    def event_source(self, event_source: str):
+    def event_source(self, event_source: str) -> None:
         self._event_source = event_source
 
     @property
-    def pet(self) -> Pet:
+    def pet(self) -> Pet | None:
         """Return the event Pet."""
         return self._pet
 
     @pet.setter
-    def pet(self, pet_data: dict):
+    def pet(self, pet_data: dict) -> None:
         pet = Pet()
 
         for key in pet_data.keys():
@@ -99,32 +98,32 @@ class Event:
         return self._date
 
     @date.setter
-    def date(self, date: str):
+    def date(self, date: str) -> None:
         self._date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
 
     @property
-    def rfid_index(self) -> int:
+    def rfid_index(self) -> int | None:
         """Return the event RFID Index."""
         return self._rfid_index
 
     @rfid_index.setter
-    def rfid_index(self, rfid_index: int):
+    def rfid_index(self, rfid_index: int) -> None:
         self._rfid_index = rfid_index
 
     @property
-    def direction(self) -> str:
+    def direction(self) -> str | None:
         """Return the event direction."""
         return self._direction
 
     @direction.setter
-    def direction(self, direction: str):
+    def direction(self, direction: str) -> None:
         self._direction = direction
 
     @property
-    def local_component_id(self) -> str:
+    def local_component_id(self) -> str | None:
         """Return the event local component ID."""
         return self._local_component_id
 
     @local_component_id.setter
-    def local_component_id(self, local_component_id: str):
+    def local_component_id(self, local_component_id: str) -> None:
         self._local_component_id = local_component_id

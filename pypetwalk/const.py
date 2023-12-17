@@ -85,4 +85,3 @@ EVENT_TYPE_ONLINE: Final = "online"
 EVENT_TYPE_OFFLINE: Final = "offline"
 EVENT_TYPE_ON: Final = "on"
 EVENT_TYPE_OFF: Final = "off"
-

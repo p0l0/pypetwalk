@@ -81,37 +81,37 @@ class PyPetWALK:
         return result
 
     async def get_modes(self) -> dict[str, str]:
-        """Returns the Modes for our Door."""
+        """Return the Modes for our Door."""
         try:
             return await self.api_client.get_modes()
         finally:
             await self.api_client.close()
 
     async def get_states(self) -> dict[str, str]:
-        """Returns the States for our Door."""
+        """Return the States for our Door."""
         try:
             return await self.api_client.get_states()
         finally:
             await self.api_client.close()
 
     async def get_device_id(self) -> str:
-        """Returns the Device ID for our Door."""
+        """Return the Device ID for our Door."""
         try:
             update_info = await self.aws_client.get_aws_update_info()
-            return update_info["update_states"][0]["deviceId"]
+            return update_info["update_states"][0]["deviceId"]  # type: ignore[no-any-return] # noqa: E501
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 
     async def get_device_name(self) -> str:
-        """Returns the Device Name for our Door."""
+        """Return the Device Name for our Door."""
         try:
             device_info = await self.websocket_client.device_info()
-            return device_info["responses"][0]["DeviceInfo"][0]["device_name"]
+            return device_info["responses"][0]["DeviceInfo"][0]["device_name"]  # type: ignore[no-any-return] # noqa: E501
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 
     async def get_available_pets(self) -> list[Pet]:
-        """Returns list of available Pets."""
+        """Return list of available Pets."""
         try:
             device_info = await self.websocket_client.device_info()
 
@@ -128,15 +128,15 @@ class PyPetWALK:
                         created=pet[4],
                     )
                 )
-                return pets
+            return pets
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 
     async def get_pet_status(self, door_id: int) -> dict[str, Event]:
-        """Returns current Pet's status.'"""
+        """Return current Pet's status."""
         timeline = await self.get_timeline(door_id, 1)
 
-        status = {}
+        status: dict[str, Event] = {}
         for entry in timeline:
             event = Event(entry)
             if event.event_type != EVENT_TYPE_OPEN or event.pet is None:
@@ -249,17 +249,17 @@ class PyPetWALK:
         return await self.websocket_client.device_info()
 
     async def get_aws_update_info(self) -> dict:
-        """Gets Update Infos from AWS."""
+        """Get Update Infos from AWS."""
         return await self.aws_client.get_aws_update_info()
 
     async def get_notification_settings(self) -> dict:
-        """Gets Notification Settings from AWS."""
+        """Get Notification Settings from AWS."""
         return await self.aws_client.get_notification_settings()
 
     async def get_timeline(
         self, door_id: int, interval_days: int = AWS_TIMELINE_INTEVAL_DAYS
     ) -> dict:
-        """Gets Timeline for specific door_id and interval_days from AWS."""
+        """Get Timeline for specific door_id and interval_days from AWS."""
         try:
             return await self.aws_client.get_timeline(door_id, interval_days)
         finally:

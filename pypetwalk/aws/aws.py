@@ -33,7 +33,7 @@ class AWS:
         self.client_id = client_id
         self.username = username
         self.password = password
-        self.current_aws_user = None
+        self.current_aws_user = Cognito(self.user_pool_id, self.client_id)
         self.session = ClientSession(timeout=ClientTimeout(total=AWS_REQUEST_TIMEOUT))
 
     async def __aenter__(self) -> AWS:
@@ -54,7 +54,7 @@ class AWS:
         if self.session:
             await self.session.close()
 
-    async def authenticate(self, username: str, password: str) -> dict:
+    async def authenticate(self, username: str, password: str) -> None:
         """Authenticate against AWS Cognito."""
         # Run authenticate without blocking the event loop
         loop = asyncio.get_running_loop()
@@ -75,24 +75,22 @@ class AWS:
             await self.close()
             raise PyPetWALKClientAWSAuthenticationError(ex) from ex
 
-        return self.current_aws_user
-
     async def get_aws_update_info(self) -> dict:
-        """Gets Update Infos from AWS."""
+        """Get Update Infos from AWS."""
         return await self.get("update_info")
 
     async def get_notification_settings(self) -> dict:
-        """Gets Notification Settings from AWS."""
+        """Get Notification Settings from AWS."""
         return await self.get("notifications/settings")
 
     async def get_timeline(self, door_id: int, interval_days: int) -> dict:
-        """Gets Timeline for specific door_id and interval_days from AWS."""
+        """Get Timeline for specific door_id and interval_days from AWS."""
         return await self.get(
             f"door_events?deviceID={door_id}&intervalDays={interval_days}"
         )
 
     async def get(self, path: str) -> dict:
-        """Gets Data from AWS API."""
+        """Get Data from AWS API."""
         url = f"{self.url}/{path}"
         _LOGGER.info("Calling AWS URL %s", url)
         try:
@@ -110,7 +108,7 @@ class AWS:
             raise PyPetWALKClientConnectionError(ex) from ex
 
     async def __headers(self) -> dict:
-        if not self.current_aws_user:
+        if not self.current_aws_user.username:
             _LOGGER.info("Missing AWS Authentication, we need to authenticate before")
             await self.authenticate(self.username, self.password)
 

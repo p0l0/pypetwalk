@@ -83,7 +83,8 @@ class API:
         if params:
             method = "PUT"
 
-        url = f"{API_HTTP_PROTOCOL}://{self.server_host}:{self.server_port}{API_PATH_MAPPING[command]}"
+        url = f"{API_HTTP_PROTOCOL}://{self.server_host}:{self.server_port}"
+        url = f"{url}{API_PATH_MAPPING[command]}"
         _LOGGER.info("Calling %s with method %s", url, method)
         _LOGGER.debug("... and Parameters: %s", params)
         if method == "GET":
