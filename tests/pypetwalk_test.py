@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 
 from aiohttp import WSMsgType, web
-from moto import mock_cognitoidp
+#from moto import mock_cognitoidp
 import pytest
 
 from pypetwalk import PyPetWALK
