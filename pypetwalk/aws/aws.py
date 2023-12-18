@@ -33,7 +33,7 @@ class AWS:
         self.client_id = client_id
         self.username = username
         self.password = password
-        self.current_aws_user = Cognito(self.user_pool_id, self.client_id)
+        self.current_aws_user = None
         self.session = ClientSession(timeout=ClientTimeout(total=AWS_REQUEST_TIMEOUT))
 
     async def __aenter__(self) -> AWS:
@@ -108,20 +108,20 @@ class AWS:
             raise PyPetWALKClientConnectionError(ex) from ex
 
     async def __headers(self) -> dict:
-        if not self.current_aws_user.username:
+        if self.current_aws_user is None:
             _LOGGER.info("Missing AWS Authentication, we need to authenticate before")
             await self.authenticate(self.username, self.password)
 
         try:
             _LOGGER.info("Check for Valid tokens, if not valid, renew")
-            self.current_aws_user.check_token()
+            self.current_aws_user.check_token()  # type: ignore[attr-defined]
         except Exception as ex:
             _LOGGER.error("%s", ex)
             raise PyPetWALKClientAWSInvalidTokens from ex
 
         headers = {
-            "Authorization": self.current_aws_user.id_token,
-            "UserAccess": self.current_aws_user.access_token,
+            "Authorization": self.current_aws_user.id_token,  # type: ignore[attr-defined] # noqa: E501
+            "UserAccess": self.current_aws_user.access_token,  # type: ignore[attr-defined] # noqa: E501
             "Client-Version": APP_VERSION,
         }
 
