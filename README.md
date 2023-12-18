@@ -15,7 +15,7 @@
 
 `pypetwalk` is a Python 3 (>= 3.11) library to communicate with the petWALK.control module.
 
-It is intended to be used in a custom_component for [Home Assistant](https://www.home-assistant.io/).
+It is intended to be used in custom_component [hapetwalk](https://github.com/p0l0/hapetwalk) for [Home Assistant](https://www.home-assistant.io/).
 
 Implementation is based on the [petWALK.control local API (beta) (1.0.0)](https://control.petwalk.solutions/doc/api/) and some reverse engineering of the internal Websocket and AWS communication.
 

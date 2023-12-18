@@ -99,7 +99,7 @@ class PyPetWALK:
     async def get_device_id(self) -> str:
         """Return the Device ID for our Door."""
         try:
-            update_info = await self.aws_client.get_aws_update_info()
+            update_info = await self.get_aws_update_info()
             return update_info["update_states"][0]["deviceId"]  # type: ignore[no-any-return] # noqa: E501
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
@@ -107,7 +107,7 @@ class PyPetWALK:
     async def get_device_name(self) -> str:
         """Return the Device Name for our Door."""
         try:
-            device_info = await self.websocket_client.device_info()
+            device_info = await self.get_device_info()
             return device_info["responses"][0]["DeviceInfo"][0]["device_name"]  # type: ignore[no-any-return] # noqa: E501
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
@@ -115,7 +115,7 @@ class PyPetWALK:
     async def get_available_pets(self) -> list[Pet]:
         """Return list of available Pets."""
         try:
-            device_info = await self.websocket_client.device_info()
+            device_info = await self.get_device_info()
 
             pets = []
             for pet in device_info["responses"][0]["DeviceInfo"][0]["pets"]:
@@ -167,51 +167,87 @@ class PyPetWALK:
 
     async def set_motion_in(self, state: bool) -> bool:
         """Set new value for 'motion in' mode."""
-        return await self.set_state(API_STATE_MOTION_IN, state)
+        try:
+            return await self.set_state(API_STATE_MOTION_IN, state)
+        finally:
+            await self.api_client.close()
 
     async def get_motion_in(self) -> bool:
         """Get value for the 'motion in' mode."""
-        return await self.__api_get_state(API_STATE_MOTION_IN)
+        try:
+            return await self.__api_get_state(API_STATE_MOTION_IN)
+        finally:
+            await self.api_client.close()
 
     async def set_motion_out(self, state: bool) -> bool:
         """Set new value for 'motion out' mode."""
-        return await self.set_state(API_STATE_MOTION_OUT, state)
+        try:
+            return await self.set_state(API_STATE_MOTION_OUT, state)
+        finally:
+            await self.api_client.close()
 
     async def get_motion_out(self) -> bool:
         """Get value for the 'motion out' mode."""
-        return await self.__api_get_state(API_STATE_MOTION_OUT)
+        try:
+            return await self.__api_get_state(API_STATE_MOTION_OUT)
+        finally:
+            await self.api_client.close()
 
     async def set_rfid(self, state: bool) -> bool:
         """Set new value for rfid mode."""
-        return await self.set_state(API_STATE_RFID, state)
+        try:
+            return await self.set_state(API_STATE_RFID, state)
+        finally:
+            await self.api_client.close()
 
     async def get_rfid(self) -> bool:
         """Get value for the rfid mode."""
-        return await self.__api_get_state(API_STATE_RFID)
+        try:
+            return await self.__api_get_state(API_STATE_RFID)
+        finally:
+            await self.api_client.close()
 
     async def set_time(self, state: bool) -> bool:
         """Set new value for time mode."""
-        return await self.set_state(API_STATE_TIME, state)
+        try:
+            return await self.set_state(API_STATE_TIME, state)
+        finally:
+            await self.api_client.close()
 
     async def get_time(self) -> bool:
         """Get value for the time mode."""
-        return await self.__api_get_state(API_STATE_TIME)
+        try:
+            return await self.__api_get_state(API_STATE_TIME)
+        finally:
+            await self.api_client.close()
 
     async def set_door_state(self, state: bool) -> bool:
         """Open or closes petWALK door."""
-        return await self.set_state(API_STATE_DOOR, state)
+        try:
+            return await self.set_state(API_STATE_DOOR, state)
+        finally:
+            await self.api_client.close()
 
     async def get_door_state(self) -> bool:
         """Get the current door state."""
-        return await self.__api_get_state(API_STATE_DOOR)
+        try:
+            return await self.__api_get_state(API_STATE_DOOR)
+        finally:
+            await self.api_client.close()
 
     async def set_system_state(self, state: bool) -> bool:
         """Turn petWALK on or off."""
-        return await self.set_state(API_STATE_SYSTEM, state)
+        try:
+            return await self.set_state(API_STATE_SYSTEM, state)
+        finally:
+            await self.api_client.close()
 
     async def get_system_state(self) -> bool:
         """Get current petWALK system state."""
-        return await self.__api_get_state(API_STATE_SYSTEM)
+        try:
+            return await self.__api_get_state(API_STATE_SYSTEM)
+        finally:
+            await self.api_client.close()
 
     async def __api_get_state(self, param: str) -> bool:
         """Call API method to get the request mode/state."""
@@ -248,15 +284,24 @@ class PyPetWALK:
 
     async def get_device_info(self) -> dict:
         """Get current device information."""
-        return await self.websocket_client.device_info()
+        try:
+            return await self.websocket_client.device_info()
+        finally:
+            await self.websocket_client.close()
 
     async def get_aws_update_info(self) -> dict:
         """Get Update Infos from AWS."""
-        return await self.aws_client.get_aws_update_info()
+        try:
+            return await self.aws_client.get_aws_update_info()
+        finally:
+            await self.aws_client.close()
 
     async def get_notification_settings(self) -> dict:
         """Get Notification Settings from AWS."""
-        return await self.aws_client.get_notification_settings()
+        try:
+            return await self.aws_client.get_notification_settings()
+        finally:
+            await self.aws_client.close()
 
     async def get_timeline(
         self, door_id: int, interval_days: int = AWS_TIMELINE_INTEVAL_DAYS
