@@ -77,6 +77,8 @@ class PyPetWALK:
         for key, value in merged.items():
             if value in API_STATE_MAPPING:
                 result[key] = API_STATE_MAPPING[value]
+            elif isinstance(value, bool):
+                result[key] = value
 
         return result
 

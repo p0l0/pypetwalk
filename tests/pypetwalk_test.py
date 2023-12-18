@@ -19,6 +19,7 @@ from pypetwalk.const import (
     API_STATE_TIME,
     WS_COMMAND_RFID_START_LEARN,
     WS_PORT,
+    API_METHOD_MAPPING,
 )
 from pypetwalk.exceptions import (
     BasePyPetWALKException,
@@ -392,7 +393,7 @@ async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
     """Test API set methods with activation."""
 
     async def handler(request: web.Request) -> web.Response:
-        json_response = fake_api.get_activated_json_for_path(path)
+        json_response = fake_api.get_activated_json_for_path(request.path)
         if not json_response:
             return web.json_response({}, status=404)
 
@@ -407,7 +408,11 @@ async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
         server.host, api_port=server.port, username="username", password="password"
     )
 
-    await client.get_api_data()
+    data = await client.get_api_data()
+    for key in API_METHOD_MAPPING:
+        assert key in data.keys(), f"Missing key '{key}'"
+        assert isinstance(data[key], bool), f"Unexpected value for {key}: '{data[key]}'"
+
     await server.close()
 
 
