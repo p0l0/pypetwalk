@@ -96,11 +96,11 @@ class PyPetWALK:
         finally:
             await self.api_client.close()
 
-    async def get_device_id(self) -> str:
+    async def get_device_id(self) -> int:
         """Return the Device ID for our Door."""
         try:
             update_info = await self.get_aws_update_info()
-            return update_info["update_states"][0]["deviceId"]  # type: ignore[no-any-return] # noqa: E501
+            return int(update_info["update_states"][0]["deviceId"])  # type: ignore[no-any-return] # noqa: E501
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 
