@@ -416,6 +416,39 @@ async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
     await server.close()
 
 
+@pytest.mark.asyncio
+async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
+    """Test WS deviceInfo method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                    data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_device_name()
+
+    assert resp == device_info["response"]["responses"][0]["DeviceInfo"][0]["device_name"], "Invalid JSON Response from WS"
+
+    await server.close()
+
+
 # @TODO - We need to test our new methods and the whole AWS Implementation!
 
 # from moto import mock_cognitoidp
