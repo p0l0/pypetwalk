@@ -38,6 +38,25 @@ class FakeAPI:
         """Returns expected path for command."""
         return API_PATH_MAPPING[API_METHOD_MAPPING[command]]
 
+    def get_command(self, path: str) -> str | None:
+        """Returns command for given path."""
+        for key, value in API_PATH_MAPPING.items():
+            if value == path:
+                return key
+
+        return None
+
+    def get_activated_json_for_path(self, path: str) -> dict:
+        """Returns activated value for given path."""
+        command = self.get_command(path)
+        json_response = {}
+        if command == "mode":
+            json_response = self.json_mode
+        elif command == "state":
+            json_response = self.json_state
+
+        return json_response
+
     def get_expected_activated_value(self, command: str) -> str | bool:
         """Returns expected value when activating command."""
         expected_value = True
@@ -194,3 +213,320 @@ def device_info():
             "version": "2.0.0",
         },
     }
+
+
+@pytest.fixture
+def update_info():
+    """Fixture for update_info test."""
+    return {
+        "update_states": [
+            {
+                "deviceId": 1234,
+                "componentUpdates": [],
+                "currentVersion": "0.1.21",
+                "targetVersion": "0.1.21",
+                "description": {},
+                "jobStatus": "none",
+            }
+        ],
+        "component_update_states": None,
+    }
+
+
+@pytest.fixture
+def get_timeline():
+    """Fixture for get_timeline test."""
+    return [
+        {
+            "id": 58755526,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "e64226a5-a435-4fbe-98f3-83258041e4ea",
+                "Name": "Cat1",
+                "species": 0,
+            },
+            "date": "2023-12-06T19:22:26",
+            "properties": {
+                "rfid_index": 0,
+                "direction": "OUT",
+                "localComponentId": "intern",
+                "pet": {"id": "e64226a5-a435-4fbe-98f3-83258041e4ea", "name": "Cat1"},
+            },
+        },
+        {
+            "id": 58755540,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-06T19:22:43",
+            "properties": {},
+        },
+        {
+            "id": 58755636,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "45d62731-8bae-4483-9a5e-6f7404b6870a",
+                "Name": "Cat2",
+                "species": 0,
+            },
+            "date": "2023-12-06T19:24:22",
+            "properties": {
+                "rfid_index": 1,
+                "direction": "OUT",
+                "localComponentId": "intern",
+                "pet": {"id": "45d62731-8bae-4483-9a5e-6f7404b6870a", "name": "Cat2"},
+            },
+        },
+        {
+            "id": 58755653,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-06T19:24:37",
+            "properties": {},
+        },
+        {
+            "id": 58756531,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "e64226a5-a435-4fbe-98f3-83258041e4ea",
+                "Name": "Cat1",
+                "species": 0,
+            },
+            "date": "2023-12-06T19:45:39",
+            "properties": {
+                "rfid_index": 0,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "e64226a5-a435-4fbe-98f3-83258041e4ea", "name": "Cat1"},
+            },
+        },
+        {
+            "id": 58756548,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-06T19:45:54",
+            "properties": {},
+        },
+        {
+            "id": 58758086,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "45d62731-8bae-4483-9a5e-6f7404b6870a",
+                "Name": "Cat2",
+                "species": 0,
+            },
+            "date": "2023-12-06T20:23:39",
+            "properties": {
+                "rfid_index": 1,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "45d62731-8bae-4483-9a5e-6f7404b6870a", "name": "Cat2"},
+            },
+        },
+        {
+            "id": 58758101,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-06T20:23:59",
+            "properties": {},
+        },
+        {
+            "id": 58758900,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "e64226a5-a435-4fbe-98f3-83258041e4ea",
+                "Name": "Cat1",
+                "species": 0,
+            },
+            "date": "2023-12-06T20:44:58",
+            "properties": {
+                "rfid_index": 0,
+                "direction": "OUT",
+                "localComponentId": "intern",
+                "pet": {"id": "e64226a5-a435-4fbe-98f3-83258041e4ea", "name": "Cat1"},
+            },
+        },
+        {
+            "id": 58758916,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-06T20:45:16",
+            "properties": {},
+        },
+        {
+            "id": 58759430,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "e64226a5-a435-4fbe-98f3-83258041e4ea",
+                "Name": "Cat1",
+                "species": 0,
+            },
+            "date": "2023-12-06T20:59:34",
+            "properties": {
+                "rfid_index": 0,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "e64226a5-a435-4fbe-98f3-83258041e4ea", "name": "Cat1"},
+            },
+        },
+        {
+            "id": 58759439,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-06T20:59:49",
+            "properties": {},
+        },
+        {
+            "id": 58989304,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T04:35:24",
+            "properties": {
+                "rfid_index": "",
+                "direction": "",
+                "localComponentId": "intern",
+            },
+        },
+        {
+            "id": 58989311,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T04:35:41",
+            "properties": {},
+        },
+        {
+            "id": 58990656,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "45d62731-8bae-4483-9a5e-6f7404b6870a",
+                "Name": "Cat2",
+                "species": 0,
+            },
+            "date": "2023-12-11T05:17:18",
+            "properties": {
+                "rfid_index": 1,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "45d62731-8bae-4483-9a5e-6f7404b6870a", "name": "Cat2"},
+            },
+        },
+        {
+            "id": 58990670,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T05:17:35",
+            "properties": {},
+        },
+        {
+            "id": 59001099,
+            "event_type": "off",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T08:56:26",
+            "properties": {},
+        },
+        {
+            "id": 59001180,
+            "event_type": "on",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T08:58:06",
+            "properties": {},
+        },
+        {
+            "id": 59007108,
+            "event_type": "offline",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T11:28:23",
+            "properties": {},
+        },
+        {
+            "id": 59007611,
+            "event_type": "online",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T11:41:13",
+            "properties": {},
+        },
+        {
+            "id": 59016951,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:13:36",
+            "properties": {
+                "rfid_index": "",
+                "direction": "",
+                "localComponentId": "intern",
+            },
+        },
+        {
+            "id": 59016970,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:13:52",
+            "properties": {},
+        },
+        {
+            "id": 59017374,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:21:04",
+            "properties": {
+                "rfid_index": "",
+                "direction": "",
+                "localComponentId": "intern",
+            },
+        },
+        {
+            "id": 59017397,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:21:23",
+            "properties": {},
+        },
+        {
+            "id": 59017916,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "e64226a5-a435-4fbe-98f3-83258041e4ea",
+                "Name": "Cat1",
+                "species": 0,
+            },
+            "date": "2023-12-11T15:29:41",
+            "properties": {
+                "rfid_index": 0,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "e64226a5-a435-4fbe-98f3-83258041e4ea", "name": "Cat1"},
+            },
+        },
+        {
+            "id": 59017931,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:29:56",
+            "properties": {},
+        },
+    ]

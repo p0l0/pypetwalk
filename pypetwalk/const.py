@@ -1,9 +1,18 @@
 """Constants for the petWALK integration."""
 from typing import Final
 
+APP_VERSION: Final = "1.4.28"
+
 API_PORT: Final = 8080
 API_HTTP_PROTOCOL: Final = "http"
+API_REQUEST_TIMEOUT: Final = 30
 WS_PORT: Final = 1234
+WS_REQUEST_TIMEOUT: Final = 30
+AWS_URL: Final = "https://caln02rdoj.execute-api.eu-west-1.amazonaws.com/Master"
+AWS_REQUEST_TIMEOUT: Final = 60
+AWS_USER_POOL_ID: Final = "eu-west-1_NaHCncUdX"
+AWS_CLIENT_ID: Final = "2qht0pl3vufdq8dmah5crv2e0o"
+AWS_TIMELINE_INTEVAL_DAYS: Final = 365
 
 WS_COMMAND_RFID_START_LEARN: Final = "RFIDStartLearn"
 WS_COMMAND_RFID_STOP_LEARN: Final = "RFIDStopLearn"
@@ -61,3 +70,18 @@ API_STATE_MAPPING_DOOR_CLOSE: Final = "close"
 API_STATE_MAPPING_DOOR_CLOSED: Final = "closed"
 API_STATE_MAPPING_SYSTEM_ON: Final = "on"
 API_STATE_MAPPING_SYSTEM_OFF: Final = "off"
+
+PET_SPECIES_MAPPING: dict[int, str] = {
+    0: "cat",
+    1: "dog",
+}
+
+EVENT_DIRECTION_IN: Final = "IN"
+EVENT_DIRECTION_OUT: Final = "OUT"
+
+EVENT_TYPE_OPEN: Final = "open"
+EVENT_TYPE_CLOSE: Final = "close"
+EVENT_TYPE_ONLINE: Final = "online"
+EVENT_TYPE_OFFLINE: Final = "offline"
+EVENT_TYPE_ON: Final = "on"
+EVENT_TYPE_OFF: Final = "off"

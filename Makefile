@@ -10,7 +10,11 @@ all:
 	@echo ""
 	@echo "pylint          -- run pylint tests"
 	@echo ""
+	@echo "pre-commit      -- run pre-commit tests"
+	@echo ""
 	@echo "pydocstyle      -- run pydocstyle tests"
+	@echo ""
+	@echo "tox            -- run tox tests"
 	@echo ""
 	@echo "coverage        -- create coverage report"
 	@echo ""
@@ -32,8 +36,14 @@ pylint:
 	@pylint --jobs=0 pypetwalk *.py
 	@pylint --jobs=0 --disable=no-self-use,protected-access,abstract-class-instantiated tests/*
 
+pre-commit:
+	@pre-commit run --all-files
+
 pydocstyle:
 	@pydocstyle pypetwalk tests/*.py tests/*.py *.py
+
+tox:
+	@tox
 
 coverage:
 	pytest --cov-report html --cov pypetwalk --verbose

@@ -13,6 +13,14 @@ class BasePyPetWALKException(Exception):
         self.name = name
 
 
+class PyPetWALKUnknownStateError(BasePyPetWALKException):
+    """pypetwalk PyPetWALKUnknownStateError exception."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init the PyPetWALKUnknownStateError."""
+        super().__init__("PyPetWALKUnknownStateError", *args)
+
+
 class PyPetWALKClientConnectionError(BasePyPetWALKException):
     """pypetwalk PyPetWALKClientConnectionError exception."""
 
@@ -43,3 +51,19 @@ class PyPetWALKInvalidResponseStatus(BasePyPetWALKException):
     def __init__(self, *args: Any) -> None:
         """Init the PyPetWALKInvalidResponseStatus."""
         super().__init__("PyPetWALKInvalidResponseStatus", *args)
+
+
+class PyPetWALKClientAWSAuthenticationError(BasePyPetWALKException):
+    """pypetwalk PyPetWALKClientAWSAuthenticationError exception."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init the PyPetWALKClientAWSAuthenticationError."""
+        super().__init__("PyPetWALKClientAWSAuthenticationError", *args)
+
+
+class PyPetWALKClientAWSInvalidTokens(BasePyPetWALKException):
+    """pypetwalk PyPetWALKClientAWSInvalidTokens exception."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init the PyPetWALKClientAWSInvalidTokens."""
+        super().__init__("PyPetWALKClientAWSInvalidTokens", *args)

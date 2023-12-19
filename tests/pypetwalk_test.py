@@ -8,6 +8,7 @@ import pytest
 
 from pypetwalk import PyPetWALK
 from pypetwalk.const import (
+    API_METHOD_MAPPING,
     API_PATH_MAPPING,
     API_PORT,
     API_STATE_BRIGHTNESS_SENSOR,
@@ -29,6 +30,8 @@ from pypetwalk.exceptions import (
 )
 from pypetwalk.ws import Request
 
+from .conftest import FakeAPI
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -44,7 +47,7 @@ from pypetwalk.ws import Request
     ],
 )
 async def test_set_values_activate(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API set methods with activation."""
 
@@ -61,7 +64,9 @@ async def test_set_values_activate(
         app.add_routes([web.put(path, handler)])
 
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, api_port=server.port)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
 
     await getattr(client, call_method)(True)
     await server.close()
@@ -81,7 +86,7 @@ async def test_set_values_activate(
     ],
 )
 async def test_set_values_deactivate(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API set methods with deactivation."""
 
@@ -98,7 +103,9 @@ async def test_set_values_deactivate(
         app.add_routes([web.put(path, handler)])
 
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, api_port=server.port)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
 
     await getattr(client, call_method)(False)
     await server.close()
@@ -118,7 +125,7 @@ async def test_set_values_deactivate(
     ],
 )
 async def test_get_values_activated(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API get methods with activated mode."""
 
@@ -136,7 +143,9 @@ async def test_get_values_activated(
         app.add_routes([web.get(path, handler)])
 
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, api_port=server.port)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
 
     await getattr(client, call_method)()
     await server.close()
@@ -156,7 +165,7 @@ async def test_get_values_activated(
     ],
 )
 async def test_get_values_deactivated(
-    aiohttp_server: any, fake_api: "FakeAPI", command: str, call_method: str
+    aiohttp_server: any, fake_api: FakeAPI, command: str, call_method: str
 ) -> None:
     """Test API get methods with deactivated mode."""
 
@@ -174,7 +183,9 @@ async def test_get_values_deactivated(
         app.add_routes([web.get(path, handler)])
 
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, api_port=server.port)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
 
     await getattr(client, call_method)()
     await server.close()
@@ -184,7 +195,7 @@ async def test_get_values_deactivated(
 async def test_host():
     """Test initialize with host."""
     host = "127.0.0.1"
-    client = PyPetWALK(host)
+    client = PyPetWALK(host, username="username", password="password")
     assert client.websocket_client.server_host == host, "Incorrect host value at WS"
     assert (
         client.websocket_client.server_port == WS_PORT
@@ -200,7 +211,7 @@ async def test_host_with_api_port():
     """Test initialize with host and API port."""
     host = "127.0.0.1"
     port = 98765
-    client = PyPetWALK(host, api_port=port)
+    client = PyPetWALK(host, api_port=port, username="username", password="password")
     assert client.websocket_client.server_host == host, "Incorrect host value at WS"
     assert (
         client.websocket_client.server_port == WS_PORT
@@ -214,7 +225,7 @@ async def test_host_with_ws_port():
     """Test initialize with host and WS port."""
     host = "127.0.0.1"
     port = 98765
-    client = PyPetWALK(host, ws_port=port)
+    client = PyPetWALK(host, ws_port=port, username="username", password="password")
     assert client.websocket_client.server_host == host, "Incorrect host value at WS"
     assert (
         client.websocket_client.server_port == port
@@ -229,7 +240,13 @@ async def test_host_with_ports():
     host = "127.0.0.1"
     ws_port = 98765
     api_port = 4563
-    client = PyPetWALK(host, ws_port=ws_port, api_port=api_port)
+    client = PyPetWALK(
+        host,
+        ws_port=ws_port,
+        api_port=api_port,
+        username="username",
+        password="password",
+    )
     assert client.websocket_client.server_host == host, "Incorrect host value at WS"
     assert (
         client.websocket_client.server_port == ws_port
@@ -261,7 +278,9 @@ async def test_ws_get_device_info(aiohttp_server: any, device_info: any) -> None
     app = web.Application()
     app.add_routes([web.get("/", handler)])
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, ws_port=server.port)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
     resp = await client.get_device_info()
 
     assert resp == device_info["response"], "Invalid JSON Response from WS"
@@ -282,7 +301,7 @@ async def test_client_connection_error_exception(
     call_method: str, param: bool | None
 ) -> None:
     """Test ClientConnectionError Exception."""
-    client = PyPetWALK("999.999.999.999")
+    client = PyPetWALK("999.999.999.999", username="username", password="password")
     with pytest.raises(PyPetWALKClientConnectionError):
         if param is not None:
             await getattr(client, call_method)(param)
@@ -311,7 +330,6 @@ async def test_invalid_response_exceptions(
     """Test exceptions for invalid responses."""
 
     async def handler(request: web.Request) -> web.Response:
-
         return web.json_response(json_response, status=200)
 
     app = web.Application()
@@ -319,7 +337,9 @@ async def test_invalid_response_exceptions(
         app.add_routes([web.get(path, handler)])
 
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, api_port=server.port)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
 
     with pytest.raises(exception):
         await getattr(client, call_method)()
@@ -340,7 +360,6 @@ async def test_http_errors(
     """Test invalid HTTP Response."""
 
     async def handler(request: web.Request) -> web.Response:
-
         return web.json_response({}, status=400)
 
     app = web.Application()
@@ -348,7 +367,9 @@ async def test_http_errors(
         app.add_routes([web.get(path, handler)])
 
     server = await aiohttp_server(app)
-    client = PyPetWALK(server.host, api_port=server.port)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
 
     with pytest.raises(PyPetWALKInvalidResponseStatus):
         if param is None:
@@ -365,3 +386,60 @@ def test_ws_request_object(ws_request_data, ws_request_json):
     request.build_request(WS_COMMAND_RFID_START_LEARN, [1])
     assert request.get_data() == ws_request_data
     assert request.get_json() == ws_request_json
+
+
+@pytest.mark.asyncio
+async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
+    """Test API set methods with activation."""
+
+    async def handler(request: web.Request) -> web.Response:
+        json_response = fake_api.get_activated_json_for_path(request.path)
+        if not json_response:
+            return web.json_response({}, status=404)
+
+        return web.json_response(json_response, status=200)
+
+    app = web.Application()
+    for path in API_PATH_MAPPING.values():
+        app.add_routes([web.get(path, handler)])
+
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, api_port=server.port, username="username", password="password"
+    )
+
+    data = await client.get_api_data()
+    for key in API_METHOD_MAPPING:
+        assert key in data.keys(), f"Missing key '{key}'"
+        assert isinstance(data[key], bool), f"Unexpected value for {key}: '{data[key]}'"
+
+    await server.close()
+
+
+# @TODO - We need to test our new methods and the whole AWS Implementation!
+
+# from moto import mock_cognitoidp
+# @mock_cognitoidp
+# @pytest.mark.asyncio
+# async def test_get_aws_update_info(aiohttp_server: any, fake_api: FakeAPI) -> None:
+#     """Test AWS get Update Info."""
+#
+#     # @TODO - Fake the AWS API!
+#     async def handler(request: web.Request) -> web.Response:
+#         json_response = fake_api.get_activated_json_for_path(path)
+#         if not json_response:
+#             return web.json_response({}, status=404)
+#
+#         return web.json_response(json_response, status=200)
+#
+#     app = web.Application()
+#     for path in API_PATH_MAPPING.values():
+#         app.add_routes([web.get(path, handler)])
+#
+#     server = await aiohttp_server(app)
+#     client = PyPetWALK(
+#         server.host, api_port=server.port, username="username", password="password"
+#     )
+#
+#     await client.get_api_data()  # get_aws_update_info()
+#     await server.close()
