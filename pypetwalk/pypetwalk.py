@@ -76,13 +76,13 @@ class PyPetWALK:
         result = {}
         for key, value in merged.items():
             if value in API_STATE_MAPPING:
-                result[key] = API_STATE_MAPPING[value]
+                result[key] = API_STATE_MAPPING[value]  # type: ignore[index]
             elif isinstance(value, bool):
                 result[key] = value
 
         return result
 
-    async def get_modes(self) -> dict[str, str]:
+    async def get_modes(self) -> dict[str, bool]:
         """Return the Modes for our Door."""
         try:
             return await self.api_client.get_modes()
@@ -100,7 +100,7 @@ class PyPetWALK:
         """Return the Device ID for our Door."""
         try:
             update_info = await self.get_aws_update_info()
-            return int(update_info["update_states"][0]["deviceId"])  # type: ignore[no-any-return] # noqa: E501
+            return int(update_info["update_states"][0]["deviceId"])
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 

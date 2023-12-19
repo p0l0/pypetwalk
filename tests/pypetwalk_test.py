@@ -8,6 +8,7 @@ import pytest
 
 from pypetwalk import PyPetWALK
 from pypetwalk.const import (
+    API_METHOD_MAPPING,
     API_PATH_MAPPING,
     API_PORT,
     API_STATE_BRIGHTNESS_SENSOR,
@@ -19,7 +20,6 @@ from pypetwalk.const import (
     API_STATE_TIME,
     WS_COMMAND_RFID_START_LEARN,
     WS_PORT,
-    API_METHOD_MAPPING,
 )
 from pypetwalk.exceptions import (
     BasePyPetWALKException,
