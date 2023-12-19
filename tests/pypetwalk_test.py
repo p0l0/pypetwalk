@@ -430,7 +430,7 @@ async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
             data = json.loads(msg.data)
 
             assert (
-                    data["requests"][0]["function"] == device_info["command"]
+                data["requests"][0]["function"] == device_info["command"]
             ), "Invalid WS command received"
 
             await websocket_client.send_str(json.dumps(device_info["response"]))
@@ -444,7 +444,9 @@ async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
     )
     resp = await client.get_device_name()
 
-    assert resp == device_info["response"]["responses"][0]["DeviceInfo"][0]["device_name"], "Invalid JSON Response from WS"
+    assert (
+        resp == device_info["response"]["responses"][0]["DeviceInfo"][0]["device_name"]
+    ), "Invalid JSON Response from WS"
 
     await server.close()
 
