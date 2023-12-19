@@ -7,6 +7,7 @@ from aiohttp import WSMsgType, web
 import pytest
 
 from pypetwalk import PyPetWALK
+from pypetwalk.aws import Pet
 from pypetwalk.const import (
     API_METHOD_MAPPING,
     API_PATH_MAPPING,
@@ -418,7 +419,7 @@ async def test_get_api_data(aiohttp_server: any, fake_api: FakeAPI) -> None:
 
 @pytest.mark.asyncio
 async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
-    """Test WS deviceInfo method."""
+    """Test get_device_name method."""
 
     async def handler(request: web.Request) -> web.WebSocketResponse:
         websocket_client = web.WebSocketResponse()
@@ -447,6 +448,71 @@ async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
     assert (
         resp == device_info["response"]["responses"][0]["DeviceInfo"][0]["device_name"]
     ), "Invalid JSON Response from WS"
+
+    await server.close()
+
+
+@pytest.mark.asyncio
+async def test_get_available_pets(aiohttp_server: any, device_info: any) -> None:
+    """Test get_available_pets method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_available_pets()
+
+    expected_pets = []
+    for pet in device_info["response"]["responses"][0]["DeviceInfo"][0]["pets"]:
+        if pet[1] is None:
+            continue
+        expected_pets.append(
+            Pet(
+                pet_id=pet[0],
+                name=pet[1],
+                species=pet[2],
+                config=pet[3],
+                created=pet[4],
+            )
+        )
+
+    assert len(resp) == len(expected_pets), "Incorrect number of Pets in response"
+    assert isinstance(resp[0], Pet), "No Pet found in response"
+    for i, pet in enumerate(resp):
+        assert pet.id == expected_pets[i].id, f"Invalid Pet ID for response number {i}"
+        assert (
+            pet.name == expected_pets[i].name
+        ), f"Invalid Pet Name for response number {i}"
+        assert (
+            pet.species == expected_pets[i].species
+        ), f"Invalid Pet Species for response number {i}"
+        assert (
+            pet.config_in == expected_pets[i].config_in
+        ), f"Invalid Pet config_in for response number {i}"
+        assert (
+            pet.config_out == expected_pets[i].config_out
+        ), f"Invalid Pet config_out for response number {i}"
+        assert (
+            pet.created == expected_pets[i].created
+        ), f"Invalid Pet Created for response number {i}"
 
     await server.close()
 
