@@ -1,3 +1,8 @@
+Version 1.0.0 (2023-12-19)
+- Implemented AWS API for Door events
+- Adapted library to have business logic outside the Homeassistant integration
+- Requires at least Python 3.11
+
 Version 0.0.2 (2022-04-29)
 - Added some extra exception and error handling
 

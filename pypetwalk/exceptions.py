@@ -13,6 +13,14 @@ class BasePyPetWALKException(Exception):
         self.name = name
 
 
+class PyPetWALKUnknownStateError(BasePyPetWALKException):
+    """pypetwalk PyPetWALKUnknownStateError exception."""
+
+    def __init__(self, *args: Any) -> None:
+        """Init the PyPetWALKUnknownStateError."""
+        super().__init__("PyPetWALKUnknownStateError", *args)
+
+
 class PyPetWALKClientConnectionError(BasePyPetWALKException):
     """pypetwalk PyPetWALKClientConnectionError exception."""
 

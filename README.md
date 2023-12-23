@@ -7,7 +7,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pypetwalk?logo=python)
 [![PyPI release](https://img.shields.io/pypi/v/pypetwalk)](https://pypi.org/project/pypetwalk/)
 ![Release status](https://img.shields.io/pypi/status/pypetwalk)
-![Build Pipeline](https://img.shields.io/github/workflow/status/p0l0/pypetwalk/CI)
+![Build Pipeline](https://img.shields.io/github/actions/workflow/status/p0l0/pypetwalk/ci.yml)
 [![codecov](https://codecov.io/gh/p0l0/pypetwalk/branch/main/graph/badge.svg?token=V5C2O6SK2O)](https://codecov.io/gh/p0l0/pypetwalk)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=f8b424)](https://github.com/pre-commit/pre-commit)
