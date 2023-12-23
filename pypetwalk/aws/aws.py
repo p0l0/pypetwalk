@@ -114,7 +114,9 @@ class AWS:
 
         try:
             _LOGGER.info("Check for Valid tokens, if not valid, renew")
-            self.current_aws_user.check_token()  # type: ignore[attr-defined]
+            # Run Token renewal without blocking the event loop
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, self.current_aws_user.check_token)  # type: ignore[attr-defined] # noqa: E501
         except Exception as ex:
             _LOGGER.error("%s", ex)
             raise PyPetWALKClientAWSInvalidTokens from ex
