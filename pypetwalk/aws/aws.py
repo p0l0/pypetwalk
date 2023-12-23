@@ -116,7 +116,12 @@ class AWS:
             _LOGGER.info("Check for Valid tokens, if not valid, renew")
             # Run Token renewal without blocking the event loop
             loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, self.current_aws_user.check_token)  # type: ignore[attr-defined] # noqa: E501
+            expired = await loop.run_in_executor(None, self.current_aws_user.check_token, False)  # type: ignore[attr-defined] # noqa: E501
+            # TODO - Investigate why using the REFRESH_TOKEN # pylint: disable=fixme
+            #  allways returns "Invalid Refresh Token"
+            if expired:
+                _LOGGER.info("Token expired, renewing tokens")
+                await self.authenticate(self.username, self.password)
         except Exception as ex:
             _LOGGER.error("%s", ex)
             raise PyPetWALKClientAWSInvalidTokens from ex
