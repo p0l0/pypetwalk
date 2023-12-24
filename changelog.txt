@@ -1,3 +1,6 @@
+Version 1.0.1 (2023-12-23)
+- Fixed error on AWS Token renewal (Issue: https://github.com/p0l0/hapetwalk/issues/7)
+
 Version 1.0.0 (2023-12-19)
 - Implemented AWS API for Door events
 - Adapted library to have business logic outside the Homeassistant integration

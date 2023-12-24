@@ -34,7 +34,7 @@ pypi:
 
 pylint:
 	@pylint --jobs=0 pypetwalk *.py
-	@pylint --jobs=0 --disable=no-self-use,protected-access,abstract-class-instantiated tests/*
+	@pylint --jobs=0 --disable=protected-access,abstract-class-instantiated tests/*
 
 pre-commit:
 	@pre-commit run --all-files
