@@ -453,6 +453,80 @@ async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
 
 
 @pytest.mark.asyncio
+async def test_get_sw_version(aiohttp_server: any, device_info: any) -> None:
+    """Test get_sw_version method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_sw_version()
+
+    expected = device_info["response"]["responses"][0]["DeviceInfo"][0][
+        "sw_version"
+    ].split(".")
+    expected.pop(0)
+    expected = ".".join(expected)
+
+    assert resp == expected, "Invalid JSON Response from WS"
+
+    await server.close()
+
+
+@pytest.mark.asyncio
+async def test_get_serial_number(aiohttp_server: any, device_info: any) -> None:
+    """Test get_serial_number method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_serial_number()
+
+    assert (
+        resp == device_info["response"]["responses"][0]["DeviceInfo"][0]["serial"]
+    ), "Invalid JSON Response from WS"
+
+    await server.close()
+
+
+@pytest.mark.asyncio
 async def test_get_available_pets(aiohttp_server: any, device_info: any) -> None:
     """Test get_available_pets method."""
 

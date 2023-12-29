@@ -112,6 +112,26 @@ class PyPetWALK:
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 
+    async def get_sw_version(self) -> str:
+        """Return the Device Name for our Door."""
+        try:
+            device_info = await self.get_device_info()
+            sw_version = device_info["responses"][0]["DeviceInfo"][0][
+                "sw_version"
+            ].split(".")
+            sw_version.pop(0)
+            return ".".join(sw_version)
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
+    async def get_serial_number(self) -> str:
+        """Return the Device Name for our Door."""
+        try:
+            device_info = await self.get_device_info()
+            return device_info["responses"][0]["DeviceInfo"][0]["serial"]  # type: ignore[no-any-return] # noqa: E501
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
     async def get_available_pets(self) -> list[Pet]:
         """Return list of available Pets."""
         try:
