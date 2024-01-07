@@ -1,2 +1,3 @@
 - Test and implement all known WS Commands
 - Implement all AWS Commands
+- Find out how configuration for time, sensivity, open angle, open-time, ...

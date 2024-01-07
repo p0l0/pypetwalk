@@ -22,6 +22,8 @@ from .const import (
     AWS_URL,
     AWS_USER_POOL_ID,
     EVENT_TYPE_OPEN,
+    UNKNOWN_PET_ID,
+    UNKNOWN_PET_NAME,
     WS_PORT,
 )
 from .exceptions import PyPetWALKInvalidResponse, PyPetWALKInvalidResponseValue
@@ -112,7 +114,27 @@ class PyPetWALK:
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
 
-    async def get_available_pets(self) -> list[Pet]:
+    async def get_sw_version(self) -> str:
+        """Return the Device Name for our Door."""
+        try:
+            device_info = await self.get_device_info()
+            sw_version = device_info["responses"][0]["DeviceInfo"][0][
+                "sw_version"
+            ].split(".")
+            sw_version.pop(0)
+            return ".".join(sw_version)
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
+    async def get_serial_number(self) -> str:
+        """Return the Device Name for our Door."""
+        try:
+            device_info = await self.get_device_info()
+            return device_info["responses"][0]["DeviceInfo"][0]["serial"]  # type: ignore[no-any-return] # noqa: E501
+        except (IndexError, KeyError) as ex:
+            raise PyPetWALKInvalidResponse from ex
+
+    async def get_available_pets(self, include_unknown: bool = False) -> list[Pet]:
         """Return list of available Pets."""
         try:
             device_info = await self.get_device_info()
@@ -130,6 +152,16 @@ class PyPetWALK:
                         created=pet[4],
                     )
                 )
+
+            if include_unknown:
+                pets.append(
+                    Pet(
+                        pet_id=UNKNOWN_PET_ID,
+                        name=UNKNOWN_PET_NAME,
+                        unknown=True,
+                    )
+                )
+
             return pets
         except (IndexError, KeyError) as ex:
             raise PyPetWALKInvalidResponse from ex
@@ -141,10 +173,14 @@ class PyPetWALK:
         status: dict[str, Event] = {}
         for entry in timeline:
             event = Event(entry)
-            if event.event_type != EVENT_TYPE_OPEN or event.pet is None:
+            if event.event_type != EVENT_TYPE_OPEN:
                 continue
 
-            pet_id = event.pet.id
+            if event.pet is not None:
+                pet_id = event.pet.id
+            else:
+                pet_id = UNKNOWN_PET_ID
+
             if pet_id not in status or status[pet_id].date < event.date:
                 status[pet_id] = event
                 continue

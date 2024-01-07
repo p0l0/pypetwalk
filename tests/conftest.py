@@ -1,6 +1,8 @@
 """Conftest for pypetwalk."""
 from __future__ import annotations
 
+import uuid
+
 import pytest
 
 from pypetwalk.const import (
@@ -528,5 +530,43 @@ def get_timeline():
             "pet": None,
             "date": "2023-12-11T15:29:56",
             "properties": {},
+        },
+    ]
+
+
+@pytest.fixture
+def pet_object_data():
+    """Fixture for Pet Object test."""
+    return [
+        {
+            "pet_id": uuid.uuid4(),
+            "name": uuid.uuid4(),
+            "species": "cat",
+            "config": {},
+            "created": 1651098738,
+            "unknown": False,
+        },
+        {
+            "pet_id": uuid.uuid4(),
+            "name": uuid.uuid4(),
+            "species": "dog",
+            "config": {"in": "default", "out": "default"},
+            "created": 1651098739,
+            "unknown": True,
+        },
+        {
+            "pet_id": uuid.uuid4(),
+            "name": uuid.uuid4(),
+            "species": "cat",
+            "config": {"in": "default"},
+            "created": 1651098739,
+        },
+        {
+            "pet_id": uuid.uuid4(),
+            "name": uuid.uuid4(),
+            "species": "dog",
+            "config": {"out": "default"},
+            "created": 1651098739,
+            "unknown": True,
         },
     ]

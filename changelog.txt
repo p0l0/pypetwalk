@@ -1,3 +1,8 @@
+Version 1.1.0 (2024-01-07)
+- Added methods to get current doors Software Version and Serial Number
+- Implemented option to get events unknown/without pet
+- Fixed Event object to have UTC as timezone
+
 Version 1.0.1 (2023-12-23)
 - Fixed error on AWS Token renewal (Issue: https://github.com/p0l0/hapetwalk/issues/7)
 

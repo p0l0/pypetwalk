@@ -1,13 +1,14 @@
 """Test for pypetwalk."""
 from __future__ import annotations
 
+from datetime import UTC, datetime, timezone
 import json
 
 from aiohttp import WSMsgType, web
 import pytest
 
 from pypetwalk import PyPetWALK
-from pypetwalk.aws import Pet
+from pypetwalk.aws import Event, Pet
 from pypetwalk.const import (
     API_METHOD_MAPPING,
     API_PATH_MAPPING,
@@ -19,6 +20,9 @@ from pypetwalk.const import (
     API_STATE_RFID,
     API_STATE_SYSTEM,
     API_STATE_TIME,
+    PET_SPECIES_MAPPING,
+    UNKNOWN_PET_ID,
+    UNKNOWN_PET_NAME,
     WS_COMMAND_RFID_START_LEARN,
     WS_PORT,
 )
@@ -453,6 +457,80 @@ async def test_get_device_name(aiohttp_server: any, device_info: any) -> None:
 
 
 @pytest.mark.asyncio
+async def test_get_sw_version(aiohttp_server: any, device_info: any) -> None:
+    """Test get_sw_version method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_sw_version()
+
+    expected = device_info["response"]["responses"][0]["DeviceInfo"][0][
+        "sw_version"
+    ].split(".")
+    expected.pop(0)
+    expected = ".".join(expected)
+
+    assert resp == expected, "Invalid JSON Response from WS"
+
+    await server.close()
+
+
+@pytest.mark.asyncio
+async def test_get_serial_number(aiohttp_server: any, device_info: any) -> None:
+    """Test get_serial_number method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_serial_number()
+
+    assert (
+        resp == device_info["response"]["responses"][0]["DeviceInfo"][0]["serial"]
+    ), "Invalid JSON Response from WS"
+
+    await server.close()
+
+
+@pytest.mark.asyncio
 async def test_get_available_pets(aiohttp_server: any, device_info: any) -> None:
     """Test get_available_pets method."""
 
@@ -513,8 +591,203 @@ async def test_get_available_pets(aiohttp_server: any, device_info: any) -> None
         assert (
             pet.created == expected_pets[i].created
         ), f"Invalid Pet Created for response number {i}"
+        assert (
+            pet.unknown == expected_pets[i].unknown
+        ), f"Invalid Pet Unknown Parameter for response number {i}"
 
     await server.close()
+
+
+@pytest.mark.asyncio
+async def test_get_available_pets_with_unknown(
+    aiohttp_server: any, device_info: any
+) -> None:
+    """Test get_available_pets method."""
+
+    async def handler(request: web.Request) -> web.WebSocketResponse:
+        websocket_client = web.WebSocketResponse()
+        await websocket_client.prepare(request)
+
+        async for msg in websocket_client:
+            if msg.type != WSMsgType.TEXT:
+                pytest.raises("Invalid WS message type received")
+            data = json.loads(msg.data)
+
+            assert (
+                data["requests"][0]["function"] == device_info["command"]
+            ), "Invalid WS command received"
+
+            await websocket_client.send_str(json.dumps(device_info["response"]))
+            await websocket_client.close()
+
+    app = web.Application()
+    app.add_routes([web.get("/", handler)])
+    server = await aiohttp_server(app)
+    client = PyPetWALK(
+        server.host, ws_port=server.port, username="username", password="password"
+    )
+    resp = await client.get_available_pets(True)
+
+    expected_pets = []
+    for pet in device_info["response"]["responses"][0]["DeviceInfo"][0]["pets"]:
+        if pet[1] is None:
+            continue
+        expected_pets.append(
+            Pet(
+                pet_id=pet[0],
+                name=pet[1],
+                species=pet[2],
+                config=pet[3],
+                created=pet[4],
+            )
+        )
+    expected_pets.append(
+        Pet(
+            pet_id=UNKNOWN_PET_ID,
+            name=UNKNOWN_PET_NAME,
+            unknown=True,
+        )
+    )
+
+    assert len(resp) == len(expected_pets), "Incorrect number of Pets in response"
+    assert isinstance(resp[0], Pet), "No Pet found in response"
+    for i, pet in enumerate(resp):
+        assert pet.id == expected_pets[i].id, f"Invalid Pet ID for response number {i}"
+        assert (
+            pet.name == expected_pets[i].name
+        ), f"Invalid Pet Name for response number {i}"
+        assert (
+            pet.species == expected_pets[i].species
+        ), f"Invalid Pet Species for response number {i}"
+        assert (
+            pet.config_in == expected_pets[i].config_in
+        ), f"Invalid Pet config_in for response number {i}"
+        assert (
+            pet.config_out == expected_pets[i].config_out
+        ), f"Invalid Pet config_out for response number {i}"
+        assert (
+            pet.created == expected_pets[i].created
+        ), f"Invalid Pet Created for response number {i}"
+        assert (
+            pet.unknown == expected_pets[i].unknown
+        ), f"Invalid Pet Unknown Parameter for response number {i}"
+
+    await server.close()
+
+
+def test_event_object(get_timeline: list[dict]) -> None:
+    """Test Event Object."""
+    for event_data in get_timeline:
+        event = Event(event_data)
+        assert event.id == event_data["id"], f"Error parsing event ID for {event_data}"
+        assert (
+            event.event_type == event_data["event_type"]
+        ), f"Error parsing event Type for {event_data}"
+        assert (
+            event.event_source == event_data["event_source"]
+        ), f"Error parsing event Source for {event_data}"
+        assert (
+            event.date.strftime("%Y-%m-%dT%H:%M:%S") == event_data["date"]
+        ), f"Error parsing event date for {event_data}"
+        assert (
+            event.date.tzinfo == timezone.utc
+        ), f"Incorrect timezone for event data {event_data}"
+
+        if event_data["properties"] is not None:
+            for key, value in event_data["properties"].items():
+                match key:
+                    case "rfid_index":
+                        assert (
+                            event.rfid_index == value
+                        ), f"Incorrect {key} value for {event_data}"
+                    case "direction":
+                        assert (
+                            event.direction == value
+                        ), f"Incorrect {key} value for {event_data}"
+                    case "localComponentId":
+                        assert (
+                            event.local_component_id == value
+                        ), f"Incorrect {key} value for {event_data}"
+                    case "pet":
+                        for pet_key in event_data["properties"][key].keys():
+                            match pet_key.lower():
+                                case "id":
+                                    assert (
+                                        event.pet.id
+                                        == event_data["properties"][key][pet_key]
+                                    ), f"Incorrect Pet ID for {event_data}"
+                                case "name":
+                                    assert (
+                                        event.pet.name
+                                        == event_data["properties"][key][pet_key]
+                                    ), f"Incorrect Pet Name for {event_data}"
+                                case "species":
+                                    species = event_data["properties"][key][pet_key]
+                                    if isinstance(
+                                        event_data["properties"][key][pet_key], int
+                                    ):
+                                        species = PET_SPECIES_MAPPING[
+                                            event_data["properties"][key][pet_key]
+                                        ]
+                                    assert (
+                                        event.pet.species == species
+                                    ), f"Incorrect Pet Species for {event_data}"
+                                case _:
+                                    raise ValueError(f"Unknown Pet property: {key}")
+                    case _:
+                        raise ValueError(f"Unknown property: {key}")
+
+        if event_data["pet"] is not None:
+            for pet_key in event_data["pet"].keys():
+                match pet_key.lower():
+                    case "id":
+                        assert (
+                            event.pet.id == event_data["pet"][pet_key]
+                        ), f"Incorrect Pet ID for {event_data}"
+                    case "name":
+                        assert (
+                            event.pet.name == event_data["pet"][pet_key]
+                        ), f"Incorrect Pet Name for {event_data}"
+                    case "species":
+                        species = event_data["pet"][pet_key]
+                        if isinstance(event_data["pet"][pet_key], int):
+                            species = PET_SPECIES_MAPPING[event_data["pet"][pet_key]]
+                        assert (
+                            event.pet.species == species
+                        ), f"Incorrect Pet Species for {event_data}"
+                    case _:
+                        raise ValueError(f"Unknown Pet property: {pet_key}")
+
+
+def test_pet_object(pet_object_data: list[dict]) -> None:
+    """Test Pet Object."""
+    for expected_pet in pet_object_data:
+        pet = Pet(**expected_pet)
+        assert pet.id == expected_pet["pet_id"], f"Invalid Pet ID for {expected_pet}"
+        assert pet.name == expected_pet["name"], f"Invalid Pet Name for {expected_pet}"
+        assert (
+            pet.species == expected_pet["species"]
+        ), f"Invalid Pet Species for {expected_pet}"
+        assert pet.created == datetime.fromtimestamp(
+            expected_pet["created"], tz=UTC
+        ), f"Invalid Pet Creation Date for {expected_pet}"
+
+        if pet.config_in:
+            assert (
+                pet.config_in == expected_pet["config"]["in"]
+            ), f"Invalid config IN for {expected_pet}"
+
+        if pet.config_out:
+            assert (
+                pet.config_out == expected_pet["config"]["out"]
+            ), f"Invalid config OUT for {expected_pet}"
+
+        if "unknown" not in expected_pet:
+            assert pet.unknown is False, f"Invalid Pet Unknown for {expected_pet}"
+        else:
+            assert (
+                pet.unknown == expected_pet["unknown"]
+            ), f"Invalid Pet Unknown for {expected_pet}"
 
 
 # @TODO - We need to test our new methods and the whole AWS Implementation!
