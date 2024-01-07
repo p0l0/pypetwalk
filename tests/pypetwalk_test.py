@@ -1,7 +1,7 @@
 """Test for pypetwalk."""
 from __future__ import annotations
 
-from datetime import timezone
+from datetime import UTC, datetime, timezone
 import json
 
 from aiohttp import WSMsgType, web
@@ -757,6 +757,37 @@ def test_event_object(get_timeline: list[dict]) -> None:
                         ), f"Incorrect Pet Species for {event_data}"
                     case _:
                         raise ValueError(f"Unknown Pet property: {pet_key}")
+
+
+def test_pet_object(pet_object_data: list[dict]) -> None:
+    """Test Pet Object."""
+    for expected_pet in pet_object_data:
+        pet = Pet(**expected_pet)
+        assert pet.id == expected_pet["pet_id"], f"Invalid Pet ID for {expected_pet}"
+        assert pet.name == expected_pet["name"], f"Invalid Pet Name for {expected_pet}"
+        assert (
+            pet.species == expected_pet["species"]
+        ), f"Invalid Pet Species for {expected_pet}"
+        assert pet.created == datetime.fromtimestamp(
+            expected_pet["created"], tz=UTC
+        ), f"Invalid Pet Creation Date for {expected_pet}"
+
+        if pet.config_in:
+            assert (
+                pet.config_in == expected_pet["config"]["in"]
+            ), f"Invalid config IN for {expected_pet}"
+
+        if pet.config_out:
+            assert (
+                pet.config_out == expected_pet["config"]["out"]
+            ), f"Invalid config OUT for {expected_pet}"
+
+        if "unknown" not in expected_pet:
+            assert pet.unknown is False, f"Invalid Pet Unknown for {expected_pet}"
+        else:
+            assert (
+                pet.unknown == expected_pet["unknown"]
+            ), f"Invalid Pet Unknown for {expected_pet}"
 
 
 # @TODO - We need to test our new methods and the whole AWS Implementation!

@@ -99,5 +99,5 @@ class Pet:
 
     def set_created_from_timestamp(self, timestamp: int) -> None:
         """Set created from timestamp."""
-        date = datetime.datetime.fromtimestamp(timestamp)
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
         self.created = date
