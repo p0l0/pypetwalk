@@ -158,6 +158,7 @@ class PyPetWALK:
                     Pet(
                         pet_id=UNKNOWN_PET_ID,
                         name=UNKNOWN_PET_NAME,
+                        unknown=True,
                     )
                 )
 

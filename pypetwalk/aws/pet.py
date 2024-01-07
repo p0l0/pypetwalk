@@ -14,11 +14,13 @@ class Pet:
         species: str | None = None,
         config: dict | None = None,
         created: int | None = None,
+        unknown: bool = False,
     ):
         """Initialize Pet Object."""
         self._id = pet_id
         self._name = name
         self._species = species
+        self._unknown = unknown
         self._created = datetime.datetime.fromtimestamp(0)
         self._config_in = None
         self._config_out = None
@@ -76,6 +78,15 @@ class Pet:
     @config_out.setter
     def config_out(self, value: str) -> None:
         self._config_out = value
+
+    @property
+    def unknown(self) -> bool:
+        """Return if it's unknown pet or not."""
+        return self._unknown
+
+    @unknown.setter
+    def unknown(self, value: bool) -> None:
+        self._unknown = value
 
     @property
     def created(self) -> datetime.datetime:
