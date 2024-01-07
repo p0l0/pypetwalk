@@ -1,13 +1,14 @@
 """Test for pypetwalk."""
 from __future__ import annotations
 
+from datetime import timezone
 import json
 
 from aiohttp import WSMsgType, web
 import pytest
 
 from pypetwalk import PyPetWALK
-from pypetwalk.aws import Pet
+from pypetwalk.aws import Event, Pet
 from pypetwalk.const import (
     API_METHOD_MAPPING,
     API_PATH_MAPPING,
@@ -19,6 +20,7 @@ from pypetwalk.const import (
     API_STATE_RFID,
     API_STATE_SYSTEM,
     API_STATE_TIME,
+    PET_SPECIES_MAPPING,
     UNKNOWN_PET_ID,
     UNKNOWN_PET_NAME,
     WS_COMMAND_RFID_START_LEARN,
@@ -671,6 +673,90 @@ async def test_get_available_pets_with_unknown(
         ), f"Invalid Pet Unknown Parameter for response number {i}"
 
     await server.close()
+
+
+def test_event_object(get_timeline: list[dict]) -> None:
+    """Test Event Object."""
+    for event_data in get_timeline:
+        event = Event(event_data)
+        assert event.id == event_data["id"], f"Error parsing event ID for {event_data}"
+        assert (
+            event.event_type == event_data["event_type"]
+        ), f"Error parsing event Type for {event_data}"
+        assert (
+            event.event_source == event_data["event_source"]
+        ), f"Error parsing event Source for {event_data}"
+        assert (
+            event.date.strftime("%Y-%m-%dT%H:%M:%S") == event_data["date"]
+        ), f"Error parsing event date for {event_data}"
+        assert (
+            event.date.tzinfo == timezone.utc
+        ), f"Incorrect timezone for event data {event_data}"
+
+        if event_data["properties"] is not None:
+            for key, value in event_data["properties"].items():
+                match key:
+                    case "rfid_index":
+                        assert (
+                            event.rfid_index == value
+                        ), f"Incorrect {key} value for {event_data}"
+                    case "direction":
+                        assert (
+                            event.direction == value
+                        ), f"Incorrect {key} value for {event_data}"
+                    case "localComponentId":
+                        assert (
+                            event.local_component_id == value
+                        ), f"Incorrect {key} value for {event_data}"
+                    case "pet":
+                        for pet_key in event_data["properties"][key].keys():
+                            match pet_key.lower():
+                                case "id":
+                                    assert (
+                                        event.pet.id
+                                        == event_data["properties"][key][pet_key]
+                                    ), f"Incorrect Pet ID for {event_data}"
+                                case "name":
+                                    assert (
+                                        event.pet.name
+                                        == event_data["properties"][key][pet_key]
+                                    ), f"Incorrect Pet Name for {event_data}"
+                                case "species":
+                                    species = event_data["properties"][key][pet_key]
+                                    if isinstance(
+                                        event_data["properties"][key][pet_key], int
+                                    ):
+                                        species = PET_SPECIES_MAPPING[
+                                            event_data["properties"][key][pet_key]
+                                        ]
+                                    assert (
+                                        event.pet.species == species
+                                    ), f"Incorrect Pet Species for {event_data}"
+                                case _:
+                                    raise ValueError(f"Unknown Pet property: {key}")
+                    case _:
+                        raise ValueError(f"Unknown property: {key}")
+
+        if event_data["pet"] is not None:
+            for pet_key in event_data["pet"].keys():
+                match pet_key.lower():
+                    case "id":
+                        assert (
+                            event.pet.id == event_data["pet"][pet_key]
+                        ), f"Incorrect Pet ID for {event_data}"
+                    case "name":
+                        assert (
+                            event.pet.name == event_data["pet"][pet_key]
+                        ), f"Incorrect Pet Name for {event_data}"
+                    case "species":
+                        species = event_data["pet"][pet_key]
+                        if isinstance(event_data["pet"][pet_key], int):
+                            species = PET_SPECIES_MAPPING[event_data["pet"][pet_key]]
+                        assert (
+                            event.pet.species == species
+                        ), f"Incorrect Pet Species for {event_data}"
+                    case _:
+                        raise ValueError(f"Unknown Pet property: {pet_key}")
 
 
 # @TODO - We need to test our new methods and the whole AWS Implementation!
