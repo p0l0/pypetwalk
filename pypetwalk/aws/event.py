@@ -99,7 +99,7 @@ class Event:
 
     @date.setter
     def date(self, date: str) -> None:
-        # Provided date ist UTC, but format has no timezone information
+        # Provided date is UTC, but format has no timezone information
         parsed = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
         self._date = parsed.replace(tzinfo=timezone.utc)
 
