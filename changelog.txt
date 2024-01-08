@@ -1,3 +1,6 @@
+Version 1.1.1 (2024-01-08)
+- Added disconnect method to close clients
+
 Version 1.1.0 (2024-01-07)
 - Added methods to get current doors Software Version and Serial Number
 - Implemented option to get events unknown/without pet

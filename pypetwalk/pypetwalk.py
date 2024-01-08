@@ -65,6 +65,10 @@ class PyPetWALK:
         traceback: TracebackType | None,
     ) -> None:
         """Stop pyPetWALK class from context manager."""
+        await self.disconnect()
+
+    async def disconnect(self) -> None:
+        """Disconnect all clients."""
         await self.websocket_client.close()
         await self.api_client.close()
         await self.aws_client.close()
