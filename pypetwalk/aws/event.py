@@ -19,13 +19,24 @@ class Event:
     def __init__(self, event: dict | None = None):
         """Initialize Event Object."""
         if event is not None:
-            self.id = event["id"]
-            self.event_type = event["event_type"]
-            self.event_source = event["event_source"]
-            self.date = event["date"]
+            if event.get("id") is None:
+                raise ValueError("We expect an id for event")
+            self.id = event.get("id")  # type: ignore[assignment]
 
-            if event["properties"] is not None:
-                for key, value in event["properties"].items():
+            if event.get("event_type") is None:
+                raise ValueError("We expect an event_type for event")
+            self.event_type = event.get("event_type")  # type: ignore[assignment]
+
+            if event.get("event_source") is None:
+                raise ValueError("We expect an event_source for event")
+            self.event_source = event.get("event_source")  # type: ignore[assignment]
+
+            if event.get("date") is None:
+                raise ValueError("We expect an date for event")
+            self.date = event.get("date")  # type: ignore[assignment]
+
+            if event.get("properties") is not None:
+                for key, value in event.get("properties").items():  # type: ignore[union-attr] # noqa: E501
                     match key:
                         case "rfid_index":
                             self.rfid_index = value
@@ -38,7 +49,7 @@ class Event:
                         case _:
                             raise ValueError(f"Unknown property: {key}")
 
-            if event["pet"] is not None:
+            if event.get("pet") is not None:
                 self.pet = event["pet"]
 
     @property

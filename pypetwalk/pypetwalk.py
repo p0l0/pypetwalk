@@ -65,6 +65,10 @@ class PyPetWALK:
         traceback: TracebackType | None,
     ) -> None:
         """Stop pyPetWALK class from context manager."""
+        await self.disconnect()
+
+    async def disconnect(self) -> None:
+        """Disconnect all clients."""
         await self.websocket_client.close()
         await self.api_client.close()
         await self.aws_client.close()
@@ -172,18 +176,21 @@ class PyPetWALK:
 
         status: dict[str, Event] = {}
         for entry in timeline:
-            event = Event(entry)
-            if event.event_type != EVENT_TYPE_OPEN:
-                continue
+            try:
+                event = Event(entry)
+                if event.event_type != EVENT_TYPE_OPEN:
+                    continue
 
-            if event.pet is not None:
-                pet_id = event.pet.id
-            else:
-                pet_id = UNKNOWN_PET_ID
+                if event.pet is not None:
+                    pet_id = event.pet.id
+                else:
+                    pet_id = UNKNOWN_PET_ID
 
-            if pet_id not in status or status[pet_id].date < event.date:
-                status[pet_id] = event
-                continue
+                if pet_id not in status or status[pet_id].date < event.date:
+                    status[pet_id] = event
+
+            except ValueError:
+                _LOGGER.debug("Skipping invalid event data %s", entry)
 
         return status
 

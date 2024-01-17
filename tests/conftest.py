@@ -524,12 +524,120 @@ def get_timeline():
             },
         },
         {
+            "id": 59017916,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "e64226a5-a435-4fbe-98f3-83258041e4ea",
+                "Name": "Cat1",
+                "species": "cat",
+            },
+            "date": "2023-12-11T15:29:41",
+            "properties": {
+                "rfid_index": 0,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "e64226a5-a435-4fbe-98f3-83258041e4ea", "name": "Cat1"},
+            },
+        },
+        {
             "id": 59017931,
             "event_type": "close",
             "event_source": "DOOR",
             "pet": None,
             "date": "2023-12-11T15:29:56",
             "properties": {},
+        },
+        # Missing properties and pet keys
+        {
+            "id": 59017931,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:29:56",
+        },
+        {
+            "id": 59017931,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "date": "2023-12-11T15:29:56",
+            "properties": {},
+        },
+        {
+            "id": 59017931,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "date": "2023-12-11T15:29:56",
+        },
+    ]
+
+
+@pytest.fixture
+def get_invalid_timeline():
+    """Fixture for invalid get_timeline test."""
+    return [
+        # Invalid Entries
+        {
+            "id": 59017931,
+            "event_type": "close",
+            "event_source": "DOOR",
+        },
+        {
+            "id": 59017931,
+            "event_type": "close",
+            "date": "2023-12-11T15:29:56",
+        },
+        {
+            "id": 59017931,
+            "event_source": "DOOR",
+            "date": "2023-12-11T15:29:56",
+        },
+        {
+            "event_type": "close",
+            "event_source": "DOOR",
+            "date": "2023-12-11T15:29:56",
+        },
+        {
+            "id": 59017397,
+            "event_type": "close",
+            "event_source": "DOOR",
+            "pet": None,
+            "date": "2023-12-11T15:21:23",
+            "properties": {
+                "invalid": True,
+            },
+        },
+        {
+            "id": 58990656,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "id": "45d62731-8bae-4483-9a5e-6f7404b6870a",
+                "Name": "Cat2",
+                "species": 0,
+            },
+            "date": "2023-12-11T05:17:18",
+            "properties": {
+                "rfid_index": 1,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"invalid": True},
+            },
+        },
+        {
+            "id": 58990656,
+            "event_type": "open",
+            "event_source": "DOOR",
+            "pet": {
+                "invalid": True,
+            },
+            "date": "2023-12-11T05:17:18",
+            "properties": {
+                "rfid_index": 1,
+                "direction": "IN",
+                "localComponentId": "intern",
+                "pet": {"id": "45d62731-8bae-4483-9a5e-6f7404b6870a", "name": "Cat2"},
+            },
         },
     ]
 

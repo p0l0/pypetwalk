@@ -679,22 +679,24 @@ def test_event_object(get_timeline: list[dict]) -> None:
     """Test Event Object."""
     for event_data in get_timeline:
         event = Event(event_data)
-        assert event.id == event_data["id"], f"Error parsing event ID for {event_data}"
-        assert (
-            event.event_type == event_data["event_type"]
+        assert event.id == event_data.get(
+            "id"
+        ), f"Error parsing event ID for {event_data}"
+        assert event.event_type == event_data.get(
+            "event_type"
         ), f"Error parsing event Type for {event_data}"
-        assert (
-            event.event_source == event_data["event_source"]
+        assert event.event_source == event_data.get(
+            "event_source"
         ), f"Error parsing event Source for {event_data}"
-        assert (
-            event.date.strftime("%Y-%m-%dT%H:%M:%S") == event_data["date"]
+        assert event.date.strftime("%Y-%m-%dT%H:%M:%S") == event_data.get(
+            "date"
         ), f"Error parsing event date for {event_data}"
         assert (
             event.date.tzinfo == timezone.utc
         ), f"Incorrect timezone for event data {event_data}"
 
-        if event_data["properties"] is not None:
-            for key, value in event_data["properties"].items():
+        if event_data.get("properties") is not None:
+            for key, value in event_data.get("properties").items():
                 match key:
                     case "rfid_index":
                         assert (
@@ -737,8 +739,8 @@ def test_event_object(get_timeline: list[dict]) -> None:
                     case _:
                         raise ValueError(f"Unknown property: {key}")
 
-        if event_data["pet"] is not None:
-            for pet_key in event_data["pet"].keys():
+        if event_data.get("pet") is not None:
+            for pet_key in event_data.get("pet").keys():
                 match pet_key.lower():
                     case "id":
                         assert (
@@ -759,14 +761,25 @@ def test_event_object(get_timeline: list[dict]) -> None:
                         raise ValueError(f"Unknown Pet property: {pet_key}")
 
 
+def test_invalid_event_object(get_invalid_timeline: list[dict]) -> None:
+    """Test invalid event object."""
+    for event_data in get_invalid_timeline:
+        with pytest.raises(ValueError):
+            Event(event_data)
+
+
 def test_pet_object(pet_object_data: list[dict]) -> None:
     """Test Pet Object."""
     for expected_pet in pet_object_data:
         pet = Pet(**expected_pet)
-        assert pet.id == expected_pet["pet_id"], f"Invalid Pet ID for {expected_pet}"
-        assert pet.name == expected_pet["name"], f"Invalid Pet Name for {expected_pet}"
-        assert (
-            pet.species == expected_pet["species"]
+        assert pet.id == expected_pet.get(
+            "pet_id"
+        ), f"Invalid Pet ID for {expected_pet}"
+        assert pet.name == expected_pet.get(
+            "name"
+        ), f"Invalid Pet Name for {expected_pet}"
+        assert pet.species == expected_pet.get(
+            "species"
         ), f"Invalid Pet Species for {expected_pet}"
         assert pet.created == datetime.fromtimestamp(
             expected_pet["created"], tz=UTC
@@ -777,17 +790,35 @@ def test_pet_object(pet_object_data: list[dict]) -> None:
                 pet.config_in == expected_pet["config"]["in"]
             ), f"Invalid config IN for {expected_pet}"
 
+            # Test direct assigment
+            pet.config_in = expected_pet["config"]["in"]
+            assert (
+                pet.config_in == expected_pet["config"]["in"]
+            ), f"Invalid direct assigment of config IN for {expected_pet}"
+
         if pet.config_out:
             assert (
                 pet.config_out == expected_pet["config"]["out"]
             ), f"Invalid config OUT for {expected_pet}"
 
+            # Test direct assigment
+            pet.config_out = expected_pet["config"]["out"]
+            assert (
+                pet.config_out == expected_pet["config"]["out"]
+            ), f"Invalid direct assigment of config OUT for {expected_pet}"
+
         if "unknown" not in expected_pet:
             assert pet.unknown is False, f"Invalid Pet Unknown for {expected_pet}"
         else:
-            assert (
-                pet.unknown == expected_pet["unknown"]
+            assert pet.unknown == expected_pet.get(
+                "unknown"
             ), f"Invalid Pet Unknown for {expected_pet}"
+
+            # Test direct assigment
+            pet.unknown = expected_pet.get("unknown")
+            assert pet.unknown == expected_pet.get(
+                "unknown"
+            ), f"Invalid direct assigment of Pet Unknown for {expected_pet}"
 
 
 # @TODO - We need to test our new methods and the whole AWS Implementation!
