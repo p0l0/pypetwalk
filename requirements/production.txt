@@ -1,2 +1,2 @@
 aiohttp>=3.8.1
-pycognito==2024.1.0
+pycognito==2024.2.0
