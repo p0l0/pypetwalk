@@ -13,4 +13,4 @@ setuptools==70.0.0
 tox==4.15.0
 mypy==1.10.0
 pre-commit==3.7.1
-moto==5.0.7
+moto==5.0.9
