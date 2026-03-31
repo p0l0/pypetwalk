@@ -1,8 +1,8 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 import logging
 from types import TracebackType
+from typing import Self
 
 from .api import API
 from .aws import AWS, Event, Pet
@@ -36,7 +36,7 @@ _LOGGER = logging.getLogger(__name__)
 class PyPetWALK:
     """Class for communicate with the petWALK.control module."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         host: str,
         username: str,
@@ -54,7 +54,7 @@ class PyPetWALK:
             aws_url, aws_user_pool_id, aws_client_id, username, password
         )
 
-    async def __aenter__(self) -> PyPetWALK:
+    async def __aenter__(self) -> Self:
         """Start pyPetWALK class from context manager."""
         return self
 
@@ -82,7 +82,7 @@ class PyPetWALK:
         result = {}
         for key, value in merged.items():
             if value in API_STATE_MAPPING:
-                result[key] = API_STATE_MAPPING[value]  # type: ignore[index]
+                result[key] = API_STATE_MAPPING[value]
             elif isinstance(value, bool):
                 result[key] = value
 

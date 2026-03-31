@@ -1,8 +1,8 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 import logging
 from types import TracebackType
+from typing import Self
 
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ClientConnectorError, ServerDisconnectedError
@@ -35,7 +35,7 @@ class API:
         self.server_port = port
         self.session = ClientSession(timeout=ClientTimeout(total=API_REQUEST_TIMEOUT))
 
-    async def __aenter__(self) -> API:
+    async def __aenter__(self) -> Self:
         """Start API class from context manager."""
         return self
 

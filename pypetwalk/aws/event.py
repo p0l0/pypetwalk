@@ -1,5 +1,4 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 from datetime import datetime, timezone
 

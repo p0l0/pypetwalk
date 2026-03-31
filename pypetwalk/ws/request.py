@@ -1,7 +1,7 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 import json
+from typing import Self
 
 
 class Request:
@@ -11,7 +11,7 @@ class Request:
         """Initialize Request object."""
         self.data = {"requests": [{"function": "", "params": []}]}
 
-    def build_request(self, command: str, params: list) -> Request:
+    def build_request(self, command: str, params: list) -> Self:
         """Build request with given parameter."""
         self.data["requests"][0]["function"] = command
         self.data["requests"][0]["params"] = params

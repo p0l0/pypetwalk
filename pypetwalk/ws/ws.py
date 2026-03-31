@@ -1,9 +1,9 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 import json
 import logging
 from types import TracebackType
+from typing import Self
 
 from aiohttp import ClientSession, ClientTimeout, WSMsgType
 from aiohttp.client_exceptions import ClientConnectorError, ServerDisconnectedError
@@ -48,7 +48,7 @@ class WS:
         self.server_port = port
         self.session = ClientSession(timeout=ClientTimeout(total=WS_REQUEST_TIMEOUT))
 
-    async def __aenter__(self) -> WS:
+    async def __aenter__(self) -> Self:
         """Start Websocket class from context manager."""
         return self
 
@@ -185,7 +185,7 @@ class WS:
                     else:
                         if msg.type == WSMsgType.TEXT:
                             result = json.loads(msg.data)
-                    return result
+                    return result  # pylint: disable=possibly-used-before-assignment
         except (ClientConnectorError, ServerDisconnectedError) as ex:
             _LOGGER.debug("%s", ex)
             await self.close()

@@ -1,5 +1,4 @@
 """Setup for pypetwalk python package."""
-from __future__ import annotations
 
 from os import path
 
@@ -35,7 +34,7 @@ setup(
     package_data={"pypetwalk": ["py.typed"]},
     zip_safe=False,
     platforms="any",
-    python_requires=">=3.11",
+    python_requires=">=3.13",
     install_requires=REQUIRES,
     keywords=["petwalk", "petwalk.control", "home", "automation"],
     classifiers=[
@@ -43,8 +42,8 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Home Automation",
     ],
 )

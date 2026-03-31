@@ -1,10 +1,10 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 import asyncio
 import functools
 import logging
 from types import TracebackType
+from typing import Self
 
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp.client_exceptions import ClientConnectorError
@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 class AWS:
     """Class for handling AWS API calls."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self, url: str, user_pool_id: str, client_id: str, username: str, password: str
     ) -> None:
         """Initialize API class."""
@@ -36,7 +36,7 @@ class AWS:
         self.current_aws_user = None
         self.session = ClientSession(timeout=ClientTimeout(total=AWS_REQUEST_TIMEOUT))
 
-    async def __aenter__(self) -> AWS:
+    async def __aenter__(self) -> Self:
         """Start API class from context manager."""
         return self
 

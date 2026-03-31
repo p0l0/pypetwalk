@@ -1,5 +1,4 @@
 """pypetwalk is a Python library to communicate with the petWALK.control module."""
-from __future__ import annotations
 
 import datetime
 
@@ -7,7 +6,7 @@ import datetime
 class Pet:
     """Class that represents a Pet."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         pet_id: str = "",
         name: str | None = None,

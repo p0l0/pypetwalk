@@ -1,7 +1,7 @@
 # pypetwalk
 
 <p align="center">
-    <a href="https://www.petwalk.at" target="_blank"><img src="https://www.petwalk.at/downloads_public/press/pics/petWALK-logo_(en).jpg" alt="PetWALK" /></a>
+    <a href="https://www.petwalk.at" target="_blank"><img src="https://cdn.shopify.com/s/files/1/0624/2517/0098/files/Logo_Claim_EN.png?v=1724396647" alt="PetWALK" height="150" /></a>
 </p>
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pypetwalk?logo=python)
@@ -13,7 +13,7 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=f8b424)](https://github.com/pre-commit/pre-commit)
 ![License](https://img.shields.io/github/license/p0l0/pypetwalk)
 
-`pypetwalk` is a Python 3 (>= 3.11) library to communicate with the petWALK.control module.
+`pypetwalk` is a Python 3 (>= 3.13) library to communicate with the petWALK.control module.
 
 It is intended to be used in custom_component [hapetwalk](https://github.com/p0l0/hapetwalk) for [Home Assistant](https://www.home-assistant.io/).
 
