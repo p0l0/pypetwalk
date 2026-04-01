@@ -46,6 +46,7 @@ jobs:
     - name: CI
       run: |
         tox
+        find . -name ".coverage*"
     - name: Upload coverage artifact
       uses: actions/upload-artifact@v5.0.0
       with:
