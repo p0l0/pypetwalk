@@ -46,13 +46,12 @@ jobs:
     - name: CI
       run: |
         tox
-        pwd
-        find . -name ".coverage*"
     - name: Upload coverage artifact
       uses: actions/upload-artifact@v5.0.0
       with:
         name: coverage-${{ matrix.python-version }}
-        path: ${{ github.workspace }}/.coverage
+        path: .coverage
+        include-hidden-files: true
 
   coverage:
     name: Process test coverage
